@@ -194,7 +194,7 @@ class MCSLayer(LayerAutomata):
         #connection is done
         self.setNextState(self.recvData)
         #try connection on all requested channel
-        for (channelId, layer) in self._channels.iteritems():
+        for (channelId, layer) in self._channels.items():
             #use proxy for each channel
             MCSLayer.MCSProxySender(layer, self, channelId).connect()
     
