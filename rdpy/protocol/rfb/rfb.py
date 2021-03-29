@@ -225,14 +225,14 @@ class RFB(RawLayer):
         are received
         """
         bodyLen = None
-        if data.len == 1:
+        if data._len() == 1:
             bodyLen = UInt8()
-        elif data.len == 2:
+        elif data._len() == 2:
             bodyLen = UInt16Be()
-        elif data.len == 4:
+        elif data._len() == 4:
             bodyLen = UInt32Be()
         else:
-            log.error("invalid header length")
+            log.error(f"invalid header length {data._len()}")
             return
         data.readType(bodyLen)
         self.expect(bodyLen.value, self._callbackBody)
@@ -361,7 +361,7 @@ class RFB(RawLayer):
         @param data: Stream that contains well formed packet
         """
         data.readType(self._serverName)
-        log.info("Server name %s"%str(self._serverName))
+        log.info(f"Server name {self._serverName}")
         #end of handshake
         #send pixel format
         self.sendPixelFormat(self._pixelFormat)

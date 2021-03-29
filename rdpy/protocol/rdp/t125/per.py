@@ -300,6 +300,6 @@ def writeOctetStream(oStr, minValue = 0):
     
     result = []
     for i in range(0, length):
-        result.append(UInt8(ord(oStr[i])))
+        result.append(UInt8(oStr[i] if type(oStr[i])==int else ord(oStr[i])))
     
     return (writeLength(mlength), tuple(result))

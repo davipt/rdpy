@@ -419,6 +419,8 @@ class des(_baseDes):
             # Turn the strings into integers. Python 3 uses a bytes
             # class, which already has this behaviour.
             data = [ord(c) for c in data]
+        # String is list of single-string chars ; BytesIO is list of int chars
+        data = [c if type(c) == int else ord(c) for c in data]
         l = len(data) * 8
         result = [0] * l
         pos = 0
