@@ -591,7 +591,7 @@ class des(_baseDes):
         while i < len(data):
             # Test code for caching encryption results
             #lines += 1
-            #if dict.has_key(data[i:i+8]):
+            #if data[i:i+8] in dict:
             #    # print("Cached result for: %s" % data[i:i+8])
             #    cached += 1
             #    result.append(dict[data[i:i+8]])

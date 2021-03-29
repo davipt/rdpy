@@ -236,7 +236,7 @@ class MCSLayer(LayerAutomata):
         per.readLength(data)
         
         #channel id doesn't match a requested layer
-        if not self._channels.has_key(channelId):
+        if channelId not in self._channels:
             log.error("receive data for an unconnected layer")
             return
 

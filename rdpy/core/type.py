@@ -266,7 +266,7 @@ class SimpleType(Type, CallableValue):
                     Because in Python all numbers are Int long or float
                     Cache result in self._mask field
         """
-        if not self.__dict__.has_key("_mask"):
+        if "_mask" not in self.__dict__:
             mask = 0xff
             for _ in range(1, self._typeSize):
                 mask = mask << 8 | 0xff
