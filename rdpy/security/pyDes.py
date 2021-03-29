@@ -576,7 +576,7 @@ class des(_baseDes):
                 raise ValueError("Invalid data length, data must be a multiple of " + str(self.block_size) + " bytes\n. Try setting the optional padding character")
             else:
                 data += (self.block_size - (len(data) % self.block_size)) * self.getPadding()
-            # print("Len of data: %f" % (len(data) / self.block_size))
+            # print("Len of data: %f" % (len(data) // self.block_size))
 
         if self.getMode() == CBC:
             if self.getIV():

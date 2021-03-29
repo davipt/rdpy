@@ -408,7 +408,7 @@ class RFB(RawLayer):
         """
         data.readType(self._currentRect)
         if self._currentRect.encoding.value == Encoding.RAW:
-            self.expect(self._currentRect.width.value * self._currentRect.height.value * (self._pixelFormat.BitsPerPixel.value / 8), self.recvRectBody)
+            self.expect(self._currentRect.width.value * self._currentRect.height.value * (self._pixelFormat.BitsPerPixel.value // 8), self.recvRectBody)
     
     def recvRectBody(self, data):
         """

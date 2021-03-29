@@ -94,7 +94,7 @@ class HoneyPotServer(rdp.RDPServerObserver):
             clientSize = nextEvent.event.width.value, nextEvent.event.height.value
             serverSize = self._controller.getScreen()
             
-            self._dx, self._dy = (max(0, serverSize[0] - clientSize[0]) / 2), max(0, (serverSize[1] - clientSize[1]) / 2)
+            self._dx, self._dy = (max(0, serverSize[0] - clientSize[0]) // 2), max(0, (serverSize[1] - clientSize[1]) // 2)
             #restart connection sequence
             return
         

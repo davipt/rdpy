@@ -445,7 +445,7 @@ class RSAPublicKey(CompositeType):
         self.magic = UInt32Le(0x31415352, constant = True)
         self.keylen = UInt32Le(lambda:(sizeof(self.modulus) + sizeof(self.padding)))
         self.bitlen = UInt32Le(lambda:((self.keylen.value - 8) * 8))
-        self.datalen = UInt32Le(lambda:((self.bitlen.value / 8) - 1))
+        self.datalen = UInt32Le(lambda:((self.bitlen.value // 8) - 1))
         self.pubExp = UInt32Le()
         self.modulus = String(readLen = CallableValue(lambda:(self.keylen.value - 8)))
         self.padding = String("\x00" * 8, readLen = CallableValue(8))

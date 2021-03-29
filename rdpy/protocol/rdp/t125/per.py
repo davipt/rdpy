@@ -220,7 +220,7 @@ def readNumericString(s, minValue):
     @param minValue: offset
     """
     length = readLength(s)
-    length = (length + minValue + 1) / 2
+    length = (length + minValue + 1) // 2
     s.read(length)
 
 def writeNumericString(nStr, minValue):
