@@ -24,6 +24,7 @@ Use to manage RDP stack in twisted
 from rdpy.core import layer
 from rdpy.core.error import CallPureVirtualFuntion, InvalidValue
 from rdpy.protocol.rdp.pdu import layer as pdu_layer, data, caps
+from rdpy.protocol.rdp import pdu
 import rdpy.core.log as log
 from rdpy.protocol.rdp import tpkt, x224, sec
 from rdpy.protocol.rdp.t125 import mcs, gcc

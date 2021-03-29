@@ -90,6 +90,7 @@ class RFBScreenShotFactory(rfb.ClientFactory):
                 rfb.RFBClientObserver.__init__(self, controller)
                 self._path = path
                 self._buffer = None
+                self._got_screenshot = False
                 
             def onUpdate(self, width, height, x, y, pixelFormat, encoding, data):
                 """
@@ -110,6 +111,7 @@ class RFBScreenShotFactory(rfb.ClientFactory):
                 with QtGui.QPainter(self._buffer) as qp:
                 #draw image
                     qp.drawImage(x, y, image, 0, 0, width, height)
+                    self._got_screenshot = True
                 
                 self._controller.close()
                 
@@ -125,8 +127,10 @@ class RFBScreenShotFactory(rfb.ClientFactory):
                 """
                 @summary: callback use when RDP stack is closed
                 """
-                log.info("save screenshot into %s"%self._path)
-                self._buffer.save(self._path)
+                if self._got_screenshot:
+                    log.info("save screenshot into %s"%self._path)
+                    self._buffer.save(self._path)
+                log.info("close")
         
         controller.setPassword(self._password)
         return ScreenShotObserver(controller, self._path)

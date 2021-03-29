@@ -120,6 +120,7 @@ class RDPScreenShotFactory(rdp.ClientFactory):
                 self._timeout = timeout
                 self._startTimeout = False
                 self._reactor = reactor
+                self._got_screenshot = False
 
             def onUpdate(self, destLeft, destTop, destRight, destBottom, width, height, bitsPerPixel, isCompress, data):
                 """
@@ -129,6 +130,7 @@ class RDPScreenShotFactory(rdp.ClientFactory):
                 with QtGui.QPainter(self._buffer) as qp:
                 # draw image
                     qp.drawImage(destLeft, destTop, image, 0, 0, destRight - destLeft + 1, destBottom - destTop + 1)
+                    self._got_screenshot = True
                 if not self._startTimeout:
                     self._startTimeout = False
                     self._reactor.callLater(self._timeout, self.checkUpdate)
@@ -150,8 +152,10 @@ class RDPScreenShotFactory(rdp.ClientFactory):
                 """
                 @summary: callback use when RDP stack is closed
                 """
-                log.info("save screenshot into %s" % self._path)
-                self._buffer.save(self._path)
+                if self._got_screenshot:
+                    log.info("save screenshot into %s" % self._path)
+                    self._buffer.save(self._path)
+                log.info("close")
 
             def checkUpdate(self):
                 self._controller.close();
