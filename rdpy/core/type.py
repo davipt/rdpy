@@ -290,19 +290,25 @@ class SimpleType(Type, CallableValue):
         @return: typeSize pass in constructor
         """
         return self._typeSize
-    
-    def __cmp__(self, other):
-        """
-        @summary:  Compare two simple type
-                    Call inner value compare operator
-        @param other:  SimpleType value or try to build same type as self
-                        around value
-        @return: python value compare
-        """
+
+    def _other(self, other):
         if not isinstance(other, SimpleType):
             other = self.__class__(other)
-        return self.value.__cmp__(other.value)
-    
+        return other
+
+    def __eq__(self, other):
+        return self.value.__eq__(self._other(other).value)
+    def __ne__(self, other):
+        return self.value.__ne__(self._other(other).value)
+    def __gt__(self, other):
+        return self.value.__gt__(self._other(other).value)
+    def __lt__(self, other):
+        return self.value.__lt__(self._other(other).value)
+    def __ge__(self, other):
+        return self.value.__ge__(self._other(other).value)
+    def __le__(self, other):
+        return self.value.__le__(self._other(other).value)
+
     def __invert__(self):
         """
         @summary: Implement not operator
@@ -759,15 +765,20 @@ class String(Type, CallableValue):
         self._readLen = readLen
         self._unicode = unicode
         self._until = until
-        
-    def __cmp__(self, other):
-        """
-        @summary: call raw compare value
-        @param other: other String parameter
-        @return: if two inner value are equals
-        """
-        return cmp(self.value, other.value)
-    
+
+    def __eq__(self, other):
+        return self.value.__eq__(other.value)
+    def __ne__(self, other):
+        return self.value.__ne__(other.value)
+    def __gt__(self, other):
+        return self.value.__gt__(other.value)
+    def __lt__(self, other):
+        return self.value.__lt__(other.value)
+    def __ge__(self, other):
+        return self.value.__ge__(other.value)
+    def __le__(self, other):
+        return self.value.__le__(other.value)
+
     def __hash__(self):
         """
         @summary: hash function to treat simple type in hash collection
