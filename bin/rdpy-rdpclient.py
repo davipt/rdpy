@@ -211,7 +211,7 @@ def autoDetectKeyboardLayout():
     return "en"
         
 def help():
-    print """
+    print("""
     Usage: rdpy-rdpclient [options] ip[:port]"
     \t-u: user name
     \t-p: password
@@ -222,7 +222,7 @@ def help():
     \t-k: keyboard layout [en|fr] [default : en]
     \t-o: optimized session (disable costly effect) [default : False]
     \t-r: rss_filepath Recorded Session Scenario [default : None]
-    """
+    """)
         
 if __name__ == '__main__':
     
