@@ -21,9 +21,9 @@
 RDP Standard security layer
 """
 
-import sha, md5
-import lic, tpkt
-from t125 import gcc, mcs
+from hashlib import sha1 as sha, md5
+from rdpy.protocol.rdp import lic, tpkt
+from rdpy.protocol.rdp.t125 import gcc, mcs
 from rdpy.core.type import CompositeType, CallableValue, Stream, UInt32Le, UInt16Le, String, sizeof
 from rdpy.core.layer import LayerAutomata, IStreamSender
 from rdpy.core.error import InvalidExpectedDataException

@@ -23,7 +23,7 @@
 """
 
 import hashlib, hmac, struct, datetime
-import sspi
+from rdpy.protocol.rdp.nla import sspi
 import rdpy.security.pyDes as pyDes
 import rdpy.security.rc4 as rc4
 from rdpy.security.rsa_wrapper import random

@@ -28,7 +28,7 @@ from rdpy.core.error import CallPureVirtualFuntion
 from rdpy.core.type import ArrayType
 import rdpy.core.log as log
 import rdpy.protocol.rdp.tpkt as tpkt
-import data, caps
+from rdpy.protocol.rdp.pdu import data, caps
 
 class PDUClientListener(object):
     """
