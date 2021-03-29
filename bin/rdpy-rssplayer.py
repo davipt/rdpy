@@ -23,10 +23,10 @@ rss file player
 
 import sys, os, getopt, socket
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 from rdpy.core import log, rss
-from rdpy.ui.qt4 import QRemoteDesktop, RDPBitmapToQtImage
+from rdpy.ui.qt5 import QRemoteDesktop, RDPBitmapToQtImage
 from rdpy.core.scancode import scancodeToChar
 log._LOG_LEVEL = log.Level.INFO
 
@@ -115,7 +115,7 @@ if __name__ == '__main__':
             
     filepath = args[0]
     #create application
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     
     mainWindow = RssPlayerWindow()
     mainWindow.show()
