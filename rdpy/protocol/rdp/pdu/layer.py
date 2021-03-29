@@ -357,7 +357,7 @@ class Client(PDULayer):
         #make active PDU packet
         confirmActivePDU = data.ConfirmActivePDU()
         confirmActivePDU.shareId.value = self._shareId
-        confirmActivePDU.capabilitySets._array = self._clientCapabilities.values()
+        confirmActivePDU.capabilitySets._array = list(self._clientCapabilities.values())
         self.sendPDU(confirmActivePDU)
         
     def sendClientFinalizeSynchronizePDU(self):
@@ -554,7 +554,7 @@ class Server(PDULayer):
         
         demandActivePDU = data.DemandActivePDU()
         demandActivePDU.shareId.value = self._shareId
-        demandActivePDU.capabilitySets._array = self._serverCapabilities.values()
+        demandActivePDU.capabilitySets._array = list(self._serverCapabilities.values())
         self.sendPDU(demandActivePDU)
         
     def sendServerFinalizeSynchronizePDU(self):
