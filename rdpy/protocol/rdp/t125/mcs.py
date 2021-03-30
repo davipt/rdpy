@@ -182,7 +182,7 @@ class MCSLayer(LayerAutomata):
         @summary: Send disconnect provider ultimatum
         """
         self._transport.send((UInt8(self.writeMCSPDUHeader(DomainMCSPDU.DISCONNECT_PROVIDER_ULTIMATUM, 1)),
-                              per.writeEnumerates(0x80), String("\x00" * 6)))
+                              per.writeEnumerates(0x80), String(b"\x00" * 6)))
         self._transport.close()
         
     def allChannelConnected(self):
@@ -437,7 +437,7 @@ class Client(MCSLayer):
         ccReqStream = Stream()
         ccReqStream.writeType(ccReq)
         
-        tmp = (ber.writeOctetstring("\x01"), ber.writeOctetstring("\x01"), ber.writeBoolean(True),
+        tmp = (ber.writeOctetstring(b"\x01"), ber.writeOctetstring(b"\x01"), ber.writeBoolean(True),
                self.writeDomainParams(34, 2, 0, 0xffff),
                self.writeDomainParams(1, 1, 1, 0x420),
                self.writeDomainParams(0xffff, 0xfc17, 0xffff, 0xffff),

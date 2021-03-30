@@ -41,7 +41,7 @@ class BERTest(unittest.TestCase):
         """
         s1 = type.Stream()
         s1.writeType(type.UInt8(0x1a))
-        s1.pos = 0
+        s1._pos(0)
         
         l1 = ber.readLength(s1)
         
@@ -49,7 +49,7 @@ class BERTest(unittest.TestCase):
         
         s2 = type.Stream()
         s2.writeType((type.UInt8(0x81),type.UInt8(0xab)))
-        s2.pos = 0
+        s2._pos(0)
         
         l2 = ber.readLength(s2)
         
@@ -57,7 +57,7 @@ class BERTest(unittest.TestCase):
         
         s3 = type.Stream()
         s3.writeType((type.UInt8(0x82),type.UInt16Be(0xabab)))
-        s3.pos = 0
+        s3._pos(0)
         
         l3 = ber.readLength(s3)
         

@@ -264,7 +264,7 @@ def writePadding(length):
     @param length: length of padding
     @return: String with \x00 * length
     """
-    return String("\x00"*length)
+    return String(b"\x00"*length)
 
 def readOctetStream(s, octetStream, minValue = 0):
     """

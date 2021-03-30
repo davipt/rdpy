@@ -61,7 +61,7 @@ class LayerTest(unittest.TestCase):
             
         t = TestAutomata()
         t.expect(4, t.expectedCallBack)
-        self.assertRaises(LayerTest.LayerCaseException, t.dataReceived, "\x00\x00\x00\x00\x00")
+        self.assertRaises(LayerTest.LayerCaseException, t.dataReceived, b"\x00\x00\x00\x00\x00")
         
     def test_layer_automata_less_than_expected(self):
         """
@@ -74,4 +74,4 @@ class LayerTest(unittest.TestCase):
             
         t = TestAutomata()
         t.expect(4, t.expectedCallBack)
-        self.assertEqual(t.dataReceived("\x00\x00\x00"), None, "Not enough dada")
+        self.assertEqual(t.dataReceived(b"\x00\x00\x00"), None, "Not enough dada")

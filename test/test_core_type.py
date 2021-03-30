@@ -139,7 +139,7 @@ class TypeTest(unittest.TestCase):
         """
         s = rdpy.core.type.Stream()
         s.writeType(rdpy.core.type.UInt8(1))
-        self.assertEqual(''.join(s.buflist), '\x01', "invalid stream write")
+        self.assertEqual(s.getvalue(), b'\x01', "invalid stream write")
         
     def test_stream_write_uint16Le_type(self):
         """
@@ -147,7 +147,7 @@ class TypeTest(unittest.TestCase):
         """
         s = rdpy.core.type.Stream()
         s.writeType(rdpy.core.type.UInt16Le(1))
-        self.assertEqual(''.join(s.buflist), '\x01\x00', "invalid stream write")
+        self.assertEqual(s.getvalue(), b'\x01\x00', "invalid stream write")
     
     def test_stream_write_uint16Be_type(self):
         """
@@ -155,7 +155,7 @@ class TypeTest(unittest.TestCase):
         """
         s = rdpy.core.type.Stream()
         s.writeType(rdpy.core.type.UInt16Be(1))
-        self.assertEqual(''.join(s.buflist), '\x00\x01', "invalid stream write")
+        self.assertEqual(s.getvalue(), b'\x00\x01', "invalid stream write")
         
     def test_stream_write_uint24Le_type(self):
         """
@@ -163,7 +163,7 @@ class TypeTest(unittest.TestCase):
         """
         s = rdpy.core.type.Stream()
         s.writeType(rdpy.core.type.UInt24Le(1))
-        self.assertEqual(''.join(s.buflist), '\x01\x00\x00', "invalid stream write")
+        self.assertEqual(s.getvalue(), b'\x01\x00\x00', "invalid stream write")
     
     def test_stream_write_uint24Be_type(self):
         """
@@ -171,7 +171,7 @@ class TypeTest(unittest.TestCase):
         """
         s = rdpy.core.type.Stream()
         s.writeType(rdpy.core.type.UInt24Be(1))
-        self.assertEqual(''.join(s.buflist), '\x00\x00\x01', "invalid stream write")
+        self.assertEqual(s.getvalue(), b'\x00\x00\x01', "invalid stream write")
         
     def test_stream_write_uint32Le_type(self):
         """
@@ -179,7 +179,7 @@ class TypeTest(unittest.TestCase):
         """
         s = rdpy.core.type.Stream()
         s.writeType(rdpy.core.type.UInt32Le(1))
-        self.assertEqual(''.join(s.buflist), '\x01\x00\x00\x00', "invalid stream write")
+        self.assertEqual(s.getvalue(), b'\x01\x00\x00\x00', "invalid stream write")
     
     def test_stream_write_uint32Be_type(self):
         """
@@ -187,13 +187,13 @@ class TypeTest(unittest.TestCase):
         """
         s = rdpy.core.type.Stream()
         s.writeType(rdpy.core.type.UInt32Be(1))
-        self.assertEqual(''.join(s.buflist), '\x00\x00\x00\x01', "invalid stream write")
+        self.assertEqual(s.getvalue(), b'\x00\x00\x00\x01', "invalid stream write")
         
     def test_stream_read_uint8_type(self):
         """
         @summary: test read UInt8 type from stream
         """
-        s = rdpy.core.type.Stream('\x01')
+        s = rdpy.core.type.Stream(b'\x01')
         t = rdpy.core.type.UInt8()
         s.readType(t)
         self.assertEqual(t.value, 1, "invalid stream read value")
@@ -203,7 +203,7 @@ class TypeTest(unittest.TestCase):
         """
         @summary: test read UInt16Le type from stream
         """
-        s = rdpy.core.type.Stream('\x01\x00')
+        s = rdpy.core.type.Stream(b'\x01\x00')
         t = rdpy.core.type.UInt16Le()
         s.readType(t)
         self.assertEqual(t.value, 1, "invalid stream read value")
@@ -213,7 +213,7 @@ class TypeTest(unittest.TestCase):
         """
         @summary: test read UInt16Be type from stream
         """
-        s = rdpy.core.type.Stream('\x00\x01')
+        s = rdpy.core.type.Stream(b'\x00\x01')
         t = rdpy.core.type.UInt16Be()
         s.readType(t)
         self.assertEqual(t.value, 1, "invalid stream read value")
@@ -223,7 +223,7 @@ class TypeTest(unittest.TestCase):
         """
         @summary: test read UInt24Le type from stream
         """
-        s = rdpy.core.type.Stream('\x01\x00\x00')
+        s = rdpy.core.type.Stream(b'\x01\x00\x00')
         t = rdpy.core.type.UInt24Le()
         s.readType(t)
         self.assertEqual(t.value, 1, "invalid stream read value")
@@ -233,7 +233,7 @@ class TypeTest(unittest.TestCase):
         """
         @summary: test read UInt24Be type from stream
         """
-        s = rdpy.core.type.Stream('\x00\x00\x01')
+        s = rdpy.core.type.Stream(b'\x00\x00\x01')
         t = rdpy.core.type.UInt24Be()
         s.readType(t)
         self.assertEqual(t.value, 1, "invalid stream read")
@@ -243,7 +243,7 @@ class TypeTest(unittest.TestCase):
         """
         @summary: test read UInt32Le type from stream
         """
-        s = rdpy.core.type.Stream('\x01\x00\x00\x00')
+        s = rdpy.core.type.Stream(b'\x01\x00\x00\x00')
         t = rdpy.core.type.UInt32Le()
         s.readType(t)
         self.assertEqual(t.value, 1, "invalid stream read value")
@@ -253,7 +253,7 @@ class TypeTest(unittest.TestCase):
         """
         @summary: test read UInt32Be type from stream
         """
-        s = rdpy.core.type.Stream('\x00\x00\x00\x01')
+        s = rdpy.core.type.Stream(b'\x00\x00\x00\x01')
         t = rdpy.core.type.UInt32Be()
         s.readType(t)
         self.assertEqual(t.value, 1, "invalid stream read")
@@ -276,7 +276,7 @@ class TypeTest(unittest.TestCase):
         """
         #unsigned int case
         t = rdpy.core.type.SimpleType("I", 4, False, 0, conditional = lambda:False)
-        s1 = rdpy.core.type.Stream("\x01\x00\x00\x00")
+        s1 = rdpy.core.type.Stream(b"\x01\x00\x00\x00")
         s1.readType(t)
         self.assertEqual(t.value, 0, "invalid stream read conditional value")
         
@@ -286,7 +286,7 @@ class TypeTest(unittest.TestCase):
         """
         #unsigned int case
         t = rdpy.core.type.SimpleType("I", 4, False, 0, conditional = lambda:True)
-        s1 = rdpy.core.type.Stream("\x01\x00\x00\x00")
+        s1 = rdpy.core.type.Stream(b"\x01\x00\x00\x00")
         s1.readType(t)
         self.assertEqual(t.value, 1, "invalid stream read conditional value")
         
@@ -300,7 +300,7 @@ class TypeTest(unittest.TestCase):
                 self.padding = rdpy.core.type.UInt32Le(0)
                 self.constraint = rdpy.core.type.UInt32Le(1, constant = True)
                 
-        s = rdpy.core.type.Stream("\x00\x00\x00\x00\x00\x00\x00\x00")
+        s = rdpy.core.type.Stream(b"\x00\x00\x00\x00\x00\x00\x00\x00")
         try:
             s.readType(TestComposite())
         except Exception:
@@ -325,7 +325,7 @@ class TypeTest(unittest.TestCase):
                 self.padding = rdpy.core.type.UInt32Le(0)
                 self.recurcive = TestSubComposite()
                 
-        s = rdpy.core.type.Stream("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+        s = rdpy.core.type.Stream(b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
         try:
             s.readType(TestComposite())
         except Exception:
@@ -350,7 +350,7 @@ class TypeTest(unittest.TestCase):
                 self.padding = rdpy.core.type.UInt32Le(0)
                 self.recurcive = TestSubComposite()
                 
-        s = rdpy.core.type.Stream("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+        s = rdpy.core.type.Stream(b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
         try:
             s.readType(TestComposite())
         except Exception:
@@ -368,7 +368,7 @@ class TypeTest(unittest.TestCase):
             def __init__(self, readLen):
                 rdpy.core.type.CompositeType.__init__(self, readLen = readLen)
                 self.padding = rdpy.core.type.UInt32Le(0)
-        s = rdpy.core.type.Stream("\x00" * 10)
+        s = rdpy.core.type.Stream(b"\x00" * 10)
         s.readType(TestReadLength(rdpy.core.type.UInt8(10)))
         self.assertEqual(s.dataLen(), 0, "invalid stream read trash data as padding")
         
@@ -382,7 +382,7 @@ class TypeTest(unittest.TestCase):
             def __init__(self, readLen):
                 rdpy.core.type.CompositeType.__init__(self, readLen = readLen)
                 self.padding = rdpy.core.type.UInt32Le(0)
-        s = rdpy.core.type.Stream("\x00" * 10)
+        s = rdpy.core.type.Stream(b"\x00" * 10)
         self.assertRaises(InvalidSize, s.readType, TestReadLength(rdpy.core.type.UInt8(2)))
         
     def test_stream_read_string(self):

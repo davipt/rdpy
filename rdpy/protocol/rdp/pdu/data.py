@@ -503,7 +503,7 @@ class DemandActivePDU(CompositeType):
         self.shareId = UInt32Le()
         self.lengthSourceDescriptor = UInt16Le(lambda:sizeof(self.sourceDescriptor))
         self.lengthCombinedCapabilities = UInt16Le(lambda:(sizeof(self.numberCapabilities) + sizeof(self.pad2Octets) + sizeof(self.capabilitySets)))
-        self.sourceDescriptor = String("rdpy", readLen = self.lengthSourceDescriptor)
+        self.sourceDescriptor = String(b"rdpy", readLen = self.lengthSourceDescriptor)
         self.numberCapabilities = UInt16Le(lambda:len(self.capabilitySets._array))
         self.pad2Octets = UInt16Le()
         self.capabilitySets = ArrayType(caps.Capability, readLen = self.numberCapabilities)
@@ -523,7 +523,7 @@ class ConfirmActivePDU(CompositeType):
         self.originatorId = UInt16Le(0x03EA, constant = True)
         self.lengthSourceDescriptor = UInt16Le(lambda:sizeof(self.sourceDescriptor))
         self.lengthCombinedCapabilities = UInt16Le(lambda:(sizeof(self.numberCapabilities) + sizeof(self.pad2Octets) + sizeof(self.capabilitySets)))
-        self.sourceDescriptor = String("rdpy", readLen = self.lengthSourceDescriptor)
+        self.sourceDescriptor = String(b"rdpy", readLen = self.lengthSourceDescriptor)
         self.numberCapabilities = UInt16Le(lambda:len(self.capabilitySets._array))
         self.pad2Octets = UInt16Le()
         self.capabilitySets = ArrayType(caps.Capability, readLen = self.numberCapabilities)
@@ -542,7 +542,7 @@ class DeactiveAllPDU(CompositeType):
         CompositeType.__init__(self, optional = True, readLen = readLen)
         self.shareId = UInt32Le()
         self.lengthSourceDescriptor = UInt16Le(lambda:sizeof(self.sourceDescriptor))
-        self.sourceDescriptor = String("rdpy", readLen = self.lengthSourceDescriptor)
+        self.sourceDescriptor = String(b"rdpy", readLen = self.lengthSourceDescriptor)
 
 class DataPDU(CompositeType):
     """
@@ -880,7 +880,7 @@ class BitmapData(CompositeType):
     """
     @summary: Bitmap data here the screen capture
     """
-    def __init__(self, destLeft = 0, destTop = 0, destRight = 0, destBottom = 0, width = 0, height = 0, bitsPerPixel = 0, bitmapDataStream = ""):
+    def __init__(self, destLeft = 0, destTop = 0, destRight = 0, destBottom = 0, width = 0, height = 0, bitsPerPixel = 0, bitmapDataStream = b""):
         """
         @param destLeft: destination left coordinate
         @param destTop: destination top coordinate

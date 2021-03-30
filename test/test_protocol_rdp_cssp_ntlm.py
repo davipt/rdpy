@@ -22,6 +22,7 @@ unit test for rdpy.protocol.rdp.nla.cssp and ntlm module
 """
 import unittest
 import os, sys
+import base64
 # Change path so we find rdpy
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -73,9 +74,9 @@ class TestCsspNtlm(unittest.TestCase):
     @summary: test generate ntlmv2 over cssp authentication protocol
     """
     def testCSSPNTLMAuthentication(self):
-        negotiate_data_request = cssp.decodeDERTRequest(peer0_0.decode('base64'))
-        challenge_data_request = cssp.decodeDERTRequest(peer1_0.decode('base64'))
-        authenticate_data_request = cssp.decodeDERTRequest(peer0_1.decode('base64'))
+        negotiate_data_request = cssp.decodeDERTRequest(base64.b64decode(peer0_0))
+        challenge_data_request = cssp.decodeDERTRequest(base64.b64decode(peer1_0))
+        authenticate_data_request = cssp.decodeDERTRequest(base64.b64decode(peer0_1))
         
         negotiate_data = cssp.getNegoTokens(negotiate_data_request)[0]
         challenge_data = cssp.getNegoTokens(challenge_data_request)[0]
@@ -122,7 +123,7 @@ class TestCsspNtlm(unittest.TestCase):
         interface = ntlm.NTLMv2SecurityInterface(rc4.RC4Key(ClientSealingKey), rc4.RC4Key(ServerSealingKey), ClientSigningKey, ServerSigningKey)
         
         EncryptedPubKeySrc = cssp.getPubKeyAuth(authenticate_data_request)
-        EncryptedPubKeyDst = interface.GSS_WrapEx(pubKeyHex.decode('base64'))
+        EncryptedPubKeyDst = interface.GSS_WrapEx(base64.b64decode(pubKeyHex))
         
         self.assertTrue(EncryptedPubKeySrc == EncryptedPubKeyDst, "Public key must be equals")
         

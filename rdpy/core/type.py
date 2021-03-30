@@ -713,7 +713,7 @@ class UInt24Be(SimpleType):
         @summary: special read for a special type
         @param s: Stream
         """
-        self.value = struct.unpack(self._structFormat, '\x00' + s.read(self._typeSize))[0]
+        self.value = struct.unpack(self._structFormat, b'\x00' + s.read(self._typeSize))[0]
         
 class UInt24Le(SimpleType):
     """
@@ -744,14 +744,14 @@ class UInt24Le(SimpleType):
         @summary: special read for a special type
         @param s: Stream
         """
-        self.value = struct.unpack(self._structFormat, s.read(self._typeSize) + '\x00')[0]
+        self.value = struct.unpack(self._structFormat, s.read(self._typeSize) + b'\x00')[0]
         
 class String(Type, CallableValue):
     """
     @summary:  String type
                 Leaf in Type tree
     """
-    def __init__(self, value = "", readLen = None, conditional = lambda:True, optional = False, constant = False, unicode = False, until = None):
+    def __init__(self, value = b"", readLen = None, conditional = lambda:True, optional = False, constant = False, unicode = False, until = None):
         """
         @param value: python string use for inner value
         @param readLen: length use to read in stream (SimpleType) if 0 read entire stream
@@ -769,6 +769,10 @@ class String(Type, CallableValue):
         self._readLen = readLen
         self._unicode = unicode
         self._until = until
+        # FIXME
+        if type(value) != bytes:
+            raise Exception(f"Invalid string value {type(value)} {value}")
+
 
     def __eq__(self, other):
         return self.value.__eq__(other.value)
@@ -795,7 +799,7 @@ class String(Type, CallableValue):
         @summary: call when str function is call
         @return: inner python string
         """
-        return self.value.decode("utf-8", 'replace') if type(self.value) == bytes else self.value
+        return self.value.decode("ascii", "escape")
     
     def __write__(self, s):
         """
@@ -809,11 +813,10 @@ class String(Type, CallableValue):
         if not self._until is None:
             toWrite += self._until
             
-        value_bytes = self.value.encode("utf-8") if hasattr(self.value, 'encode') else self.value
         if self._unicode:
-            s.write(encodeUnicode(value_bytes))
+            s.write(encodeUnicode(self.value))
         else:
-            s.write(value_bytes)
+            s.write(self.value)
     
     def __read__(self, s):
         """
@@ -864,7 +867,7 @@ def decodeUnicode(s):
     r = ""
     while i < len(s) - 2:
         if i % 2 == 0:
-            r += s[i]
+            r += chr(s[i]) if type(s[i]) == int else s[i]
         i += 1
     return r
 

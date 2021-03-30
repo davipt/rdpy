@@ -35,10 +35,10 @@ class ProtocolVersion(object):
     """
     @summary: Different protocol version
     """
-    UNKNOWN = ""
-    RFB003003 = "RFB 003.003\n"
-    RFB003007 = "RFB 003.007\n"
-    RFB003008 = "RFB 003.008\n"
+    UNKNOWN = b""
+    RFB003003 = b"RFB 003.003\n"
+    RFB003007 = b"RFB 003.007\n"
+    RFB003008 = b"RFB 003.008\n"
 
 class SecurityType(object):
     """
