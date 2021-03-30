@@ -46,7 +46,7 @@ class RssPlayerWidget(QRemoteDesktop):
                 """ Not Handle """
         QRemoteDesktop.__init__(self, width, height, RssAdaptor())
         
-class RssPlayerWindow(QtGui.QWidget):
+class RssPlayerWindow(QtWidgets.QWidget):
     """
     @summary: main window of rss player
     """

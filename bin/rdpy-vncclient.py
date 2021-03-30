@@ -62,7 +62,7 @@ class RFBClientQtFactory(rfb.ClientFactory):
         @param connector: twisted connector use for vnc connection (use reconnect to restart connection)
         @param reason: str use to advertise reason of lost connection
         """
-        QtGui.QMessageBox.warning(self._w, "Warning", "Lost connection : %s"%reason)
+        QtWidgets.QMessageBox.warning(self._w, "Warning", "Lost connection : %s"%reason)
         reactor.stop()
         app.exit()
         
@@ -72,7 +72,7 @@ class RFBClientQtFactory(rfb.ClientFactory):
         @param connector: twisted connector use for vnc connection (use reconnect to restart connection)
         @param reason: str use to advertise reason of lost connection
         """
-        QtGui.QMessageBox.warning(self._w, "Warning", "Connection failed : %s"%reason)
+        QtWidgets.QMessageBox.warning(self._w, "Warning", "Connection failed : %s"%reason)
         reactor.stop()
         app.exit()
         

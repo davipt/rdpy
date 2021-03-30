@@ -197,7 +197,7 @@ def RDPBitmapToQtImage(width, height, bitsPerPixel, isCompress, data):
             rle.bitmap_decompress(buf, width, height, data, 2)
             image = QtGui.QImage(buf, width, height, QtGui.QImage.Format_RGB555)
         else:
-            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB555).transformed(QtGui.QMatrix(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
+            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB555).transformed(QtGui.QTransform(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
     
     elif bitsPerPixel == 16:
         if isCompress:
@@ -205,7 +205,7 @@ def RDPBitmapToQtImage(width, height, bitsPerPixel, isCompress, data):
             rle.bitmap_decompress(buf, width, height, data, 2)
             image = QtGui.QImage(buf, width, height, QtGui.QImage.Format_RGB16)
         else:
-            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB16).transformed(QtGui.QMatrix(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
+            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB16).transformed(QtGui.QTransform(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
     
     elif bitsPerPixel == 24:
         if isCompress:
@@ -213,7 +213,7 @@ def RDPBitmapToQtImage(width, height, bitsPerPixel, isCompress, data):
             rle.bitmap_decompress(buf, width, height, data, 3)
             image = QtGui.QImage(buf, width, height, QtGui.QImage.Format_RGB888)
         else:
-            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB888).transformed(QtGui.QMatrix(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
+            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB888).transformed(QtGui.QTransform(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
             
     elif bitsPerPixel == 32:
         if isCompress:
@@ -221,7 +221,7 @@ def RDPBitmapToQtImage(width, height, bitsPerPixel, isCompress, data):
             rle.bitmap_decompress(buf, width, height, data, 4)
             image = QtGui.QImage(buf, width, height, QtGui.QImage.Format_RGB32)
         else:
-            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB32).transformed(QtGui.QMatrix(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
+            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB32).transformed(QtGui.QTransform(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
     else:
         log.error("Receive image in bad format")
         image = QtGui.QImage(width, height, QtGui.QImage.Format_RGB32)
@@ -370,7 +370,7 @@ class QRemoteDesktop(QtWidgets.QWidget):
         @param height: {int} height of widget
         """
         self._buffer = QtGui.QImage(width, height, QtGui.QImage.Format_RGB32)
-        QtGui.QWidget.resize(self, width, height)
+        QtWidgets.QWidget.resize(self, width, height)
         
     def paintEvent(self, e):
         """
