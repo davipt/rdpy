@@ -1,13 +1,13 @@
 language: python
 
 python:
-  - 2.7
+  - 3.8
 
 before_install:
-  - sudo apt-get install python-qt4
-  - ln -s /usr/lib/python2.7/dist-packages/PyQt4/ $VIRTUAL_ENV/lib/python2.7/site-packages/
-  - ln -s /usr/lib/python2.7/dist-packages/sip.so $VIRTUAL_ENV/lib/python2.7/site-packages/
-  - pip install qt4reactor pyopenssl twisted service_identity rsa pyasn1
+  - sudo apt-get install python-qt5
+  - ln -s /usr/lib/python3.8/dist-packages/PyQt5/ $VIRTUAL_ENV/lib/python3.8/site-packages/
+  - ln -s /usr/lib/python3.8/dist-packages/sip.so $VIRTUAL_ENV/lib/python3.8/site-packages/
+  - pip install qt5reactor pyopenssl twisted service_identity rsa pyasn1
 
 install:
   - python setup.py install

@@ -19,7 +19,7 @@ RDPY is fully implemented in python, except the bitmap decompression algorithm w
 
 ### Dependencies
 
-Dependencies are only needed for pyqt4 binaries :
+Dependencies are only needed for pyqt5 binaries :
 * rdpy-rdpclient
 * rdpy-rdpscreenshot
 * rdpy-vncclient
@@ -30,7 +30,7 @@ Dependencies are only needed for pyqt4 binaries :
 
 Example for Debian based systems :
 ```
-sudo apt-get install python-qt4
+sudo apt-get install python-qt5
 ```
 
 #### OS X
@@ -41,16 +41,13 @@ $ brew install qt sip pyqt
 
 #### Windows
 
-x86 | x86_64
-----|-------
-[PyQt4](http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.3/PyQt4-4.11.3-gpl-Py2.7-Qt4.8.6-x32.exe) | [PyQt4](http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.3/PyQt4-4.11.3-gpl-Py2.7-Qt4.8.6-x64.exe/download)
-[PyWin32](http://sourceforge.net/projects/pywin32/files/pywin32/Build%20218/pywin32-218.win32-py2.7.exe/download) | [PyWin32](http://sourceforge.net/projects/pywin32/files/pywin32/Build%20218/pywin32-218.win-amd64-py2.7.exe/download)
+… FIXME …
 
 ### Build
 
 ```
 $ git clone https://github.com/citronneur/rdpy.git rdpy
-$ pip install twisted pyopenssl qt4reactor service_identity rsa pyasn1
+$ pip install twisted pyopenssl qt5reactor service_identity rsa pyasn1
 $ python rdpy/setup.py install
 ```
 
@@ -59,10 +56,10 @@ Or use PIP:
 $ pip install rdpy
 ```
 
-For virtualenv, you will need to link the qt4 library to it:
+For virtualenv, you will need to link the qt5 library to it:
 ```
-$ ln -s /usr/lib/python2.7/dist-packages/PyQt4/ $VIRTUAL_ENV/lib/python2.7/site-packages/
-$ ln -s /usr/lib/python2.7/dist-packages/sip.so $VIRTUAL_ENV/lib/python2.7/site-packages/
+$ ln -s /usr/lib/python3.8/dist-packages/PyQt5/ $VIRTUAL_ENV/lib/python3.8/site-packages/
+$ ln -s /usr/lib/python3.8/dist-packages/sip.so $VIRTUAL_ENV/lib/python3.8/site-packages/
 ```
 
 ## RDPY Binaries
@@ -71,7 +68,7 @@ RDPY comes with some very useful binaries. These binaries are linux and windows 
 
 ### rdpy-rdpclient
 
-rdpy-rdpclient is a simple RDP Qt4 client.
+rdpy-rdpclient is a simple RDP Qt5 client.
 
 ```
 $ rdpy-rdpclient.py [-u username] [-p password] [-d domain] [-r rss_ouput_file] [...] XXX.XXX.XXX.XXX[:3389]
@@ -81,7 +78,7 @@ You can use rdpy-rdpclient in a Recorder Session Scenario, used in rdpy-rdphoney
 
 ### rdpy-vncclient
 
-rdpy-vncclient is a simple VNC Qt4 client .
+rdpy-vncclient is a simple VNC Qt5 client .
 
 ```
 $ rdpy-vncclient.py [-p password] XXX.XXX.XXX.XXX[:5900]
@@ -136,7 +133,7 @@ $ rdpy-rssplayer.py rss_file_path
 
 ## RDPY Qt Widget
 
-RDPY can also be used as Qt widget through rdpy.ui.qt4.QRemoteDesktop class. It can be embedded in your own Qt application. qt4reactor must be used in your app for Twisted and Qt to work together. For more details, see sources of rdpy-rdpclient.
+RDPY can also be used as Qt widget through rdpy.ui.qt5.QRemoteDesktop class. It can be embedded in your own Qt application. qt5reactor must be used in your app for Twisted and Qt to work together. For more details, see sources of rdpy-rdpclient.
 
 ## RDPY library
 
