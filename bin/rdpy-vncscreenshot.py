@@ -33,6 +33,13 @@ from twisted.internet import task
 #set log level
 log._LOG_LEVEL = log.Level.INFO
 
+def stop(reactor):
+    try:
+        reactor.stop()
+    except Exception as e:
+        log.warning(f"Error stopping reactor: {e}")
+
+
 class RFBScreenShotFactory(rfb.ClientFactory):
     """
     @summary: Factory for screenshot exemple
@@ -56,7 +63,8 @@ class RFBScreenShotFactory(rfb.ClientFactory):
         log.info("connection lost : %s"%reason)
         RFBScreenShotFactory.__INSTANCE__ -= 1
         if(RFBScreenShotFactory.__INSTANCE__ == 0):
-            reactor.stop()
+            # reactor.stop()
+            stop(reactor)
             app.exit()
         
     def clientConnectionFailed(self, connector, reason):
@@ -68,7 +76,8 @@ class RFBScreenShotFactory(rfb.ClientFactory):
         log.info("connection failed : %s"%reason)
         RFBScreenShotFactory.__INSTANCE__ -= 1
         if(RFBScreenShotFactory.__INSTANCE__ == 0):
-            reactor.stop()
+            # reactor.stop()
+            stop(reactor)
             app.exit()
         
         

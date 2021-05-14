@@ -37,6 +37,12 @@ from twisted.internet import task
 # set log level
 log._LOG_LEVEL = log.Level.INFO
 
+def stop(reactor):
+    try:
+        reactor.stop()
+    except Exception as e:
+        log.warning(f"Error stopping reactor: {e}")
+
 
 class RDPScreenShotFactory(rdp.ClientFactory):
     """
@@ -79,7 +85,8 @@ class RDPScreenShotFactory(rdp.ClientFactory):
         RDPScreenShotFactory.__STATE__.append((connector.host, connector.port, reason))
         RDPScreenShotFactory.__INSTANCE__ -= 1
         if(RDPScreenShotFactory.__INSTANCE__ == 0):
-            self._reactor.stop()
+            #self._reactor.stop()
+            stop(self._reactor)
             self._app.exit()
 
     def clientConnectionFailed(self, connector, reason):
@@ -92,7 +99,8 @@ class RDPScreenShotFactory(rdp.ClientFactory):
         RDPScreenShotFactory.__STATE__.append((connector.host, connector.port, reason))
         RDPScreenShotFactory.__INSTANCE__ -= 1
         if(RDPScreenShotFactory.__INSTANCE__ == 0):
-            self._reactor.stop()
+            #self._reactor.stop()
+            stop(self._reactor)
             self._app.exit()
 
     def buildObserver(self, controller, addr):
@@ -158,9 +166,9 @@ class RDPScreenShotFactory(rdp.ClientFactory):
                 log.info("close")
 
             def checkUpdate(self):
-                self._controller.close();
+                self._controller.close()
 
-        controller.setScreen(self._width, self._height);
+        controller.setScreen(self._width, self._height)
         controller.setSecurityLevel(self._security)
         return ScreenShotObserver(controller, self._width, self._height, self._path, self._timeout, self._reactor)
 

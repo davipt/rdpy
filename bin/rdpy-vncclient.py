@@ -29,7 +29,14 @@ from rdpy.protocol.rfb import rfb
 
 import rdpy.core.log as log
 log._LOG_LEVEL = log.Level.INFO
-        
+
+def stop(reactor):
+    try:
+        reactor.stop()
+    except Exception as e:
+        log.warning(f"Error stopping reactor: {e}")
+
+
 class RFBClientQtFactory(rfb.ClientFactory):
     """
     @summary: Factory create a VNC GUI client
@@ -63,7 +70,8 @@ class RFBClientQtFactory(rfb.ClientFactory):
         @param reason: str use to advertise reason of lost connection
         """
         QtWidgets.QMessageBox.warning(self._w, "Warning", "Lost connection : %s"%reason)
-        reactor.stop()
+        # reactor.stop()
+        stop(reactor)
         app.exit()
         
     def clientConnectionFailed(self, connector, reason):
@@ -73,7 +81,8 @@ class RFBClientQtFactory(rfb.ClientFactory):
         @param reason: str use to advertise reason of lost connection
         """
         QtWidgets.QMessageBox.warning(self._w, "Warning", "Connection failed : %s"%reason)
-        reactor.stop()
+        # reactor.stop()
+        stop(reactor)
         app.exit()
         
 if __name__ == '__main__':

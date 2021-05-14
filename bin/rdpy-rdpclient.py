@@ -32,6 +32,12 @@ from rdpy.core import rss
 import rdpy.core.log as log
 log._LOG_LEVEL = log.Level.INFO
 
+def stop(reactor):
+    try:
+        reactor.stop()
+    except Exception as e:
+        log.warning(f"Error stopping reactor: {e}")
+
 
 class RDPClientQtRecorder(RDPClientQt):
     """
@@ -173,7 +179,8 @@ class RDPClientQtFactory(rdp.ClientFactory):
             return
         
         log.info("Lost connection : %s"%reason)
-        reactor.stop()
+        # reactor.stop()
+        stop(reactor)
         app.exit()
         
     def clientConnectionFailed(self, connector, reason):
@@ -183,7 +190,8 @@ class RDPClientQtFactory(rdp.ClientFactory):
         @param reason: str use to advertise reason of lost connection
         """
         log.info("Connection failed : %s"%reason)
-        reactor.stop()
+        # reactor.stop()
+        stop(reactor)
         app.exit()
         
 def autoDetectKeyboardLayout():

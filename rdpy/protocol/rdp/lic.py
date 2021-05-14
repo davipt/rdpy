@@ -263,8 +263,8 @@ class LicenseManager(object):
         @param transport: layer use to send packet
         """
         self._transport = transport
-        self._username = ""
-        self._hostname = ""
+        self._username = b""
+        self._hostname = b""
  
     def recv(self, s):
         """

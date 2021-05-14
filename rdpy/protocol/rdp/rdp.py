@@ -38,6 +38,10 @@ class SecurityLevel(object):
     RDP_LEVEL_SSL = 1
     RDP_LEVEL_NLA = 2
 
+def b(value):
+    return value.encode('ascii') if type(value) == str else value
+
+
 class RDPClientController(pdu_layer.PDUClientListener):
     """
     Manage RDP stack as client
@@ -102,6 +106,7 @@ class RDPClientController(pdu_layer.PDUClientListener):
         @param username: {string} username of session
         """
         #username in PDU info packet
+        username = b(username)
         self._secLayer._info.userName.value = username
         self._secLayer._licenceManager._username = username
         
@@ -110,6 +115,7 @@ class RDPClientController(pdu_layer.PDUClientListener):
         @summary: Set password for session
         @param password: {string} password of session
         """
+        password = b(password)
         self.setAutologon()
         self._secLayer._info.password.value = password
         
@@ -118,6 +124,7 @@ class RDPClientController(pdu_layer.PDUClientListener):
         @summary: Set the windows domain of session
         @param domain: {string} domain of session
         """
+        domain = b(domain)
         self._secLayer._info.domain.value = domain
         
     def setAutologon(self):
@@ -147,7 +154,8 @@ class RDPClientController(pdu_layer.PDUClientListener):
         """
         @summary: set hostname of machine
         """
-        self._mcsLayer._clientSettings.CS_CORE.clientName.value = hostname[:15] + "\x00" * (15 - len(hostname))
+        hostname = b(hostname)
+        self._mcsLayer._clientSettings.CS_CORE.clientName.value = hostname[:15] + b"\x00" * (15 - len(hostname))
         self._secLayer._licenceManager._hostname = hostname
         
     def setSecurityLevel(self, level):

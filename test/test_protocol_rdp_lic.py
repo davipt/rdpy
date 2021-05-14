@@ -127,5 +127,4 @@ class TestLic(unittest.TestCase):
         
         s = type.Stream(base64.b64decode(SERVERREQUEST))
         
-        # FIXME
-        # self.assertFalse(l.recv(s) and t._state, "Bad message after license request")
+        self.assertFalse(l.recv(s) and t._state, "Bad message after license request")
