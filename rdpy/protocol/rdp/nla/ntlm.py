@@ -352,7 +352,7 @@ def UNICODE(s):
     @param s: source
     @return: {str} encoded in unicode
     """
-    s = s.decode("utf-8") if type(s) == bytes else s  # FIXME
+    s = s.decode("utf-8") if type(s) == bytes else s
     return s.encode('utf-16le')
 
 def MD4(s):

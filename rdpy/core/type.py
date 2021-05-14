@@ -817,7 +817,9 @@ class String(Type, CallableValue):
             s.write(encodeUnicode(self.value))
         else:
             s.write(self.value)
-    
+
+        # print(f"String write unicode={self._unicode} {self.value}")  # FIXME
+
     def __read__(self, s):
         """
         @summary:  Read readLen bytes as string
@@ -837,6 +839,8 @@ class String(Type, CallableValue):
         
         if self._unicode:
             self.value = decodeUnicode(self.value)
+
+        # print(f"String read unicode={self._unicode} {self.value}")  # FIXME
         
     def __sizeof__(self):
         """

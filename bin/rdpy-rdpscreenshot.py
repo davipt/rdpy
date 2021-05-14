@@ -34,6 +34,8 @@ import rdpy.core.log as log
 from rdpy.core.error import RDPSecurityNegoFail
 from twisted.internet import task
 
+from rdpy.core.layer import RawLayer
+
 # set log level
 log._LOG_LEVEL = log.Level.INFO
 
@@ -195,6 +197,21 @@ def main(width, height, path, timeout, hosts):
             ip, port = host.split(':')
         else:
             ip, port = host, "3389"
+
+        # FIXME 
+        out_file = path + "%s.bin" % ip
+        if os.path.exists(out_file):
+            os.unlink(out_file)        
+        def hack(data):
+            #print(f"FOOBAR data {data}")
+            # only first line
+            if os.path.exists(out_file):
+                return
+            out= open(out_file, "ab")
+            out.write(data)
+            # out.write(b"\n")
+            out.close()
+        RawLayer.__hack__ = hack
 
         reactor.connectTCP(ip, int(port), RDPScreenShotFactory(reactor, app, width, height, path + "%s.jpg" % ip, timeout))
 

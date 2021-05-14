@@ -199,6 +199,11 @@ class RawLayer(protocol.Protocol, LayerAutomata, IStreamSender):
         """
         #add in buffer
         self._buffer += data
+
+        if hasattr(self, '__hack__'):
+            RawLayer.__hack__(data)
+        # print(f"dataReceived {data}")
+
         #while buffer have expected size call local callback
         while self._expectedLen > 0 and len(self._buffer) >= self._expectedLen:
             #expected data is first expected bytes
