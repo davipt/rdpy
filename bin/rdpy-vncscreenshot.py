@@ -30,11 +30,16 @@ import rdpy.core.log as log
 from rdpy.ui.qt5 import qtImageFormatFromRFBPixelFormat
 from twisted.internet import task
 
+from rdpy.core.layer import RawLayer
+
 #set log level
 log._LOG_LEVEL = log.Level.INFO
 
 def stop(reactor):
     try:
+        # https://stackoverflow.com/a/13538248
+        reactor.removeAll()
+        reactor.iterate()
         reactor.stop()
     except Exception as e:
         log.warning(f"Error stopping reactor: {e}")
@@ -60,7 +65,8 @@ class RFBScreenShotFactory(rfb.ClientFactory):
         @param connector: twisted connector use for rfb connection (use reconnect to restart connection)
         @param reason: str use to advertise reason of lost connection
         """
-        log.info("connection lost : %s"%reason)
+        if "Connection was closed cleanly" not in f"{reason}":
+            log.info("connection lost : %s"%reason)
         RFBScreenShotFactory.__INSTANCE__ -= 1
         if(RFBScreenShotFactory.__INSTANCE__ == 0):
             # reactor.stop()
@@ -118,7 +124,7 @@ class RFBScreenShotFactory(rfb.ClientFactory):
                     return
                 image = QtGui.QImage(data, width, height, imageFormat)
                 with QtGui.QPainter(self._buffer) as qp:
-                #draw image
+                    #draw image
                     qp.drawImage(x, y, image, 0, 0, width, height)
                     self._got_screenshot = True
                 
@@ -175,13 +181,33 @@ if __name__ == '__main__':
     qt5reactor.install()
     from twisted.internet import reactor
 
+
+    # FIXME
+    if len(args) != 1:
+        raise Exception(f"Only one host supported, got {args}")
     
     for arg in args:      
         if ':' in arg:
             ip, port = arg.split(':')
         else:
             ip, port = arg, "5900"
-        
+
+        # FIXME 
+        out_file = path + "%s.bin" % ip
+        if os.path.exists(out_file):
+            os.unlink(out_file)        
+        print(f"[*] INFO:       out_file={out_file}")
+        def hack(data):
+            # print(f"FOOBAR data {data}")
+            # only first line
+            if os.path.exists(out_file):
+                return
+            out= open(out_file, "ab")
+            out.write(data)
+            # out.write(b"\n")
+            out.close()
+        RawLayer.__hack__ = hack
+
         reactor.connectTCP(ip, int(port), RFBScreenShotFactory(password, path + "%s.jpg"%ip))
         
     

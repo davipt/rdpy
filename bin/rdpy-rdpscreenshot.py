@@ -41,6 +41,9 @@ log._LOG_LEVEL = log.Level.INFO
 
 def stop(reactor):
     try:
+        # https://stackoverflow.com/a/13538248
+        reactor.removeAll()
+        reactor.iterate()
         reactor.stop()
     except Exception as e:
         log.warning(f"Error stopping reactor: {e}")
@@ -77,13 +80,15 @@ class RDPScreenShotFactory(rdp.ClientFactory):
         @param connector: twisted connector use for rdp connection (use reconnect to restart connection)
         @param reason: str use to advertise reason of lost connection
         """
-        if reason.type == RDPSecurityNegoFail and self._security != "rdp":
+        if reason.type == RDPSecurityNegoFail and self._security != rdp.SecurityLevel.RDP_LEVEL_RDP:
             log.info("due to RDPSecurityNegoFail try standard security layer")
             self._security = rdp.SecurityLevel.RDP_LEVEL_RDP
             connector.connect()
             return
 
-        log.info("connection lost : %s" % reason)
+        if "Connection was closed cleanly" not in f"{reason}":
+            log.info("connection lost : %s" % reason)
+
         RDPScreenShotFactory.__STATE__.append((connector.host, connector.port, reason))
         RDPScreenShotFactory.__INSTANCE__ -= 1
         if(RDPScreenShotFactory.__INSTANCE__ == 0):
@@ -192,6 +197,10 @@ def main(width, height, path, timeout, hosts):
 
     from twisted.internet import reactor
 
+    # FIXME
+    if len(hosts) != 1:
+        raise Exception(f"Only one host supported, got {hosts}")
+
     for host in hosts:      
         if ':' in host:
             ip, port = host.split(':')
@@ -202,8 +211,9 @@ def main(width, height, path, timeout, hosts):
         out_file = path + "%s.bin" % ip
         if os.path.exists(out_file):
             os.unlink(out_file)        
+        print(f"[*] INFO:       out_file={out_file}")
         def hack(data):
-            #print(f"FOOBAR data {data}")
+            # print(f"FOOBAR data {data}")
             # only first line
             if os.path.exists(out_file):
                 return
@@ -251,4 +261,6 @@ if __name__ == '__main__':
         elif opt == "-t":
             timeout = float(arg)
 
+    # print(f"opts={opts} args={args}")
+    
     main(width, height, path, timeout, args)
