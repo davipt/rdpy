@@ -143,9 +143,10 @@ class RDPScreenShotFactory(rdp.ClientFactory):
                 """
                 image = RDPBitmapToQtImage(width, height, bitsPerPixel, isCompress, data);
                 with QtGui.QPainter(self._buffer) as qp:
-                # draw image
+                    # draw image
                     qp.drawImage(destLeft, destTop, image, 0, 0, destRight - destLeft + 1, destBottom - destTop + 1)
-                    self._got_screenshot = True
+                log.info(f"incoming frame pos={destLeft},{destTop} size={destRight - destLeft + 1},{destBottom - destTop + 1}")
+                self._got_screenshot = True
                 if not self._startTimeout:
                     self._startTimeout = False
                     self._reactor.callLater(self._timeout, self.checkUpdate)
@@ -242,7 +243,7 @@ if __name__ == '__main__':
     width = 1024
     height = 800
     path = "/tmp/"
-    timeout = 5.0
+    timeout = 2.0
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hw:l:o:t:")

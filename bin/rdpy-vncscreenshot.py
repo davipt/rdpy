@@ -50,13 +50,15 @@ class RFBScreenShotFactory(rfb.ClientFactory):
     @summary: Factory for screenshot exemple
     """
     __INSTANCE__ = 0
-    def __init__(self, password, path):
+    def __init__(self, reactor, password, path, timeout):
         """
         @param password: password for VNC authentication
         @param path: path of output screenshot
         """
         RFBScreenShotFactory.__INSTANCE__ += 1
+        self._reactor = reactor
         self._path = path
+        self._timeout = timeout
         self._password = password
         
     def clientConnectionLost(self, connector, reason):
@@ -97,7 +99,7 @@ class RFBScreenShotFactory(rfb.ClientFactory):
             """
             @summary: observer that connect, cache every image received and save at deconnection
             """
-            def __init__(self, controller, path):
+            def __init__(self, controller, path, timeout, reactor):
                 """
                 @param controller: RFBClientController
                 @param path: path of output screenshot
@@ -105,6 +107,9 @@ class RFBScreenShotFactory(rfb.ClientFactory):
                 rfb.RFBClientObserver.__init__(self, controller)
                 self._path = path
                 self._buffer = None
+                self._timeout = timeout
+                self._reactor = reactor
+                self._startTimeout = False
                 self._got_screenshot = False
                 
             def onUpdate(self, width, height, x, y, pixelFormat, encoding, data):
@@ -126,17 +131,23 @@ class RFBScreenShotFactory(rfb.ClientFactory):
                 with QtGui.QPainter(self._buffer) as qp:
                     #draw image
                     qp.drawImage(x, y, image, 0, 0, width, height)
-                    self._got_screenshot = True
-                
-                self._controller.close()
-                
+                log.info(f"incoming frame pos={x},{y} size={width},{height}")
+                self._got_screenshot = True
+                self.mouseEvent(1, 1, 1)
+                self.keyEvent(True, 27)  # escape key
+
+                if not self._startTimeout:
+                    self._startTimeout = False
+                    self._reactor.callLater(self._timeout, self.checkUpdate)
+
             def onReady(self):
                 """
                 @summary: callback use when RDP stack is connected (just before received bitmap)
                 """
                 log.info("connected %s"%addr)
-                width, height = self._controller.getScreen()
-                self._buffer = QtGui.QImage(width, height, QtGui.QImage.Format_RGB32)
+                self._width, self._height = self._controller.getScreen()
+                log.info(f"ready size={self._width},{self._height}")
+                self._buffer = QtGui.QImage(self._width, self._height, QtGui.QImage.Format_RGB32)
             
             def onClose(self):
                 """
@@ -147,17 +158,22 @@ class RFBScreenShotFactory(rfb.ClientFactory):
                     self._buffer.save(self._path)
                 log.info("close")
         
+            def checkUpdate(self):
+                self._controller.close()
+
         controller.setPassword(self._password)
-        return ScreenShotObserver(controller, self._path)
+        return ScreenShotObserver(controller, self._path, self._timeout, self._reactor)
         
 def help():
     print("Usage: rdpy-vncscreenshot [options] ip[:port]")
     print("\t-o: file path of screenshot default(/tmp/rdpy-vncscreenshot.jpg)")
+    print("\t-t: timeout of connection without any updating order (default is 2s)")
     print("\t-p: password for VNC Session")
         
 if __name__ == '__main__':
     #default script argument
     path = "/tmp/"
+    timeout = 2.0
     password = ""
     
     try:
@@ -172,6 +188,8 @@ if __name__ == '__main__':
             path = arg
         elif opt == "-p":
             password = arg
+        elif opt == "-t":
+            timeout = float(arg)
         
     #create application
     app = QtWidgets.QApplication(sys.argv)
@@ -208,8 +226,8 @@ if __name__ == '__main__':
             out.close()
         RawLayer.__hack__ = hack
 
-        reactor.connectTCP(ip, int(port), RFBScreenShotFactory(password, path + "%s.jpg"%ip))
-        
+        reactor.connectTCP(ip, int(port), RFBScreenShotFactory(reactor, password, path + "%s.jpg" % ip, timeout))
+
     
     reactor.runReturn()
     app.exec_()
