@@ -55,4 +55,4 @@ class ConstTest(unittest.TestCase):
             MEMBER_1 = 1
             MEMBER_2 = 2
             
-        self.assertEquals(Test.MEMBER_1, Test.MEMBER_1, "handle same type of object")
+        self.assertEqual(Test.MEMBER_1, Test.MEMBER_1, "handle same type of object")

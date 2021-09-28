@@ -23,13 +23,20 @@ example of use rdpy as VNC client
 """
 
 import sys, os, getopt
-from PyQt4 import QtGui
-from rdpy.ui.qt4 import RFBClientQt
+from PyQt5 import QtGui, QtWidgets
+from rdpy.ui.qt5 import RFBClientQt
 from rdpy.protocol.rfb import rfb
 
 import rdpy.core.log as log
 log._LOG_LEVEL = log.Level.INFO
-        
+
+def stop(reactor):
+    try:
+        reactor.stop()
+    except Exception as e:
+        log.warning(f"Error stopping reactor: {e}")
+
+
 class RFBClientQtFactory(rfb.ClientFactory):
     """
     @summary: Factory create a VNC GUI client
@@ -62,8 +69,9 @@ class RFBClientQtFactory(rfb.ClientFactory):
         @param connector: twisted connector use for vnc connection (use reconnect to restart connection)
         @param reason: str use to advertise reason of lost connection
         """
-        QtGui.QMessageBox.warning(self._w, "Warning", "Lost connection : %s"%reason)
-        reactor.stop()
+        QtWidgets.QMessageBox.warning(self._w, "Warning", "Lost connection : %s"%reason)
+        # reactor.stop()
+        stop(reactor)
         app.exit()
         
     def clientConnectionFailed(self, connector, reason):
@@ -72,8 +80,9 @@ class RFBClientQtFactory(rfb.ClientFactory):
         @param connector: twisted connector use for vnc connection (use reconnect to restart connection)
         @param reason: str use to advertise reason of lost connection
         """
-        QtGui.QMessageBox.warning(self._w, "Warning", "Connection failed : %s"%reason)
-        reactor.stop()
+        QtWidgets.QMessageBox.warning(self._w, "Warning", "Connection failed : %s"%reason)
+        # reactor.stop()
+        stop(reactor)
         app.exit()
         
 if __name__ == '__main__':
@@ -84,7 +93,7 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hp:")
     except getopt.GetoptError:
-        help()
+        opts = [('-h', '')]
     for opt, arg in opts:
         if opt == "-h":
             help()
@@ -98,11 +107,11 @@ if __name__ == '__main__':
         ip, port = args[0], "5900"
         
     #create application
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     
-    #add qt4 reactor
-    import qt4reactor
-    qt4reactor.install()
+    #add qt5 reactor
+    import qt5reactor
+    qt5reactor.install()
 
     from twisted.internet import reactor
     reactor.connectTCP(ip, int(port), RFBClientQtFactory(password))

@@ -26,9 +26,10 @@ We are in python!
 
 import struct
 from copy import deepcopy
-from StringIO import StringIO
+from io import BytesIO
 from rdpy.core.error import InvalidExpectedDataException, InvalidSize, CallPureVirtualFuntion, InvalidValue
 import rdpy.core.log as log
+from os import SEEK_END
 
 def sizeof(element):
     """
@@ -103,7 +104,7 @@ class Type(object):
         #check constant value
         if old != self:
             #rollback read value
-            s.pos -= sizeof(self)
+            s._pos(s._pos() - sizeof(self))
             raise InvalidExpectedDataException("%s const value expected %s != %s"%(self.__class__, old.value, self.value))
         
     def __read__(self, s):
@@ -203,6 +204,9 @@ class SimpleType(Type, CallableValue):
         self._structFormat = structFormat
         Type.__init__(self, conditional = conditional, optional = optional, constant = constant)
         CallableValue.__init__(self, value)
+
+    def __str__(self):
+        return f"{self.value}"
         
     def __getValue__(self):
         """
@@ -266,7 +270,7 @@ class SimpleType(Type, CallableValue):
                     Because in Python all numbers are Int long or float
                     Cache result in self._mask field
         """
-        if not self.__dict__.has_key("_mask"):
+        if "_mask" not in self.__dict__:
             mask = 0xff
             for _ in range(1, self._typeSize):
                 mask = mask << 8 | 0xff
@@ -290,19 +294,25 @@ class SimpleType(Type, CallableValue):
         @return: typeSize pass in constructor
         """
         return self._typeSize
-    
-    def __cmp__(self, other):
-        """
-        @summary:  Compare two simple type
-                    Call inner value compare operator
-        @param other:  SimpleType value or try to build same type as self
-                        around value
-        @return: python value compare
-        """
+
+    def _other(self, other):
         if not isinstance(other, SimpleType):
             other = self.__class__(other)
-        return self.value.__cmp__(other.value)
-    
+        return other
+
+    def __eq__(self, other):
+        return self.value.__eq__(self._other(other).value)
+    def __ne__(self, other):
+        return self.value.__ne__(self._other(other).value)
+    def __gt__(self, other):
+        return self.value.__gt__(self._other(other).value)
+    def __lt__(self, other):
+        return self.value.__lt__(self._other(other).value)
+    def __ge__(self, other):
+        return self.value.__ge__(self._other(other).value)
+    def __le__(self, other):
+        return self.value.__le__(self._other(other).value)
+
     def __invert__(self):
         """
         @summary: Implement not operator
@@ -462,7 +472,7 @@ class CompositeType(Type):
                 #read is ok but read out of bound
                 if not self._readLen is None and readLen > self._readLen.value:
                     #roll back
-                    s.pos -= sizeof(self.__dict__[name])
+                    s._pos(s._pos() - sizeof(self.__dict__[name]))
                     #and notify if not optional
                     if not self.__dict__[name]._optional:
                         raise InvalidSize("Impossible to read type %s : read length is too small"%(self.__class__))
@@ -473,7 +483,7 @@ class CompositeType(Type):
                 for tmpName in self._typeName:
                     if tmpName == name:
                         break
-                    s.pos -= sizeof(self.__dict__[tmpName])
+                    s._pos(s._pos() - sizeof(self.__dict__[tmpName]))
                 raise e
             
         if not self._readLen is None and readLen < self._readLen.value:
@@ -703,7 +713,7 @@ class UInt24Be(SimpleType):
         @summary: special read for a special type
         @param s: Stream
         """
-        self.value = struct.unpack(self._structFormat, '\x00' + s.read(self._typeSize))[0]
+        self.value = struct.unpack(self._structFormat, b'\x00' + s.read(self._typeSize))[0]
         
 class UInt24Le(SimpleType):
     """
@@ -734,14 +744,14 @@ class UInt24Le(SimpleType):
         @summary: special read for a special type
         @param s: Stream
         """
-        self.value = struct.unpack(self._structFormat, s.read(self._typeSize) + '\x00')[0]
+        self.value = struct.unpack(self._structFormat, s.read(self._typeSize) + b'\x00')[0]
         
 class String(Type, CallableValue):
     """
     @summary:  String type
                 Leaf in Type tree
     """
-    def __init__(self, value = "", readLen = None, conditional = lambda:True, optional = False, constant = False, unicode = False, until = None):
+    def __init__(self, value = b"", readLen = None, conditional = lambda:True, optional = False, constant = False, unicode = False, until = None):
         """
         @param value: python string use for inner value
         @param readLen: length use to read in stream (SimpleType) if 0 read entire stream
@@ -759,15 +769,24 @@ class String(Type, CallableValue):
         self._readLen = readLen
         self._unicode = unicode
         self._until = until
-        
-    def __cmp__(self, other):
-        """
-        @summary: call raw compare value
-        @param other: other String parameter
-        @return: if two inner value are equals
-        """
-        return cmp(self.value, other.value)
-    
+        # FIXME
+        if type(value) != bytes:
+            raise Exception(f"Invalid string value {type(value)} {value}")
+
+
+    def __eq__(self, other):
+        return self.value.__eq__(other.value)
+    def __ne__(self, other):
+        return self.value.__ne__(other.value)
+    def __gt__(self, other):
+        return self.value.__gt__(other.value)
+    def __lt__(self, other):
+        return self.value.__lt__(other.value)
+    def __ge__(self, other):
+        return self.value.__ge__(other.value)
+    def __le__(self, other):
+        return self.value.__le__(other.value)
+
     def __hash__(self):
         """
         @summary: hash function to treat simple type in hash collection
@@ -780,7 +799,7 @@ class String(Type, CallableValue):
         @summary: call when str function is call
         @return: inner python string
         """
-        return self.value
+        return self.value.decode("ascii", "escape")
     
     def __write__(self, s):
         """
@@ -798,7 +817,9 @@ class String(Type, CallableValue):
             s.write(encodeUnicode(self.value))
         else:
             s.write(self.value)
-    
+
+        # print(f"String write unicode={self._unicode} {self.value}")  # FIXME
+
     def __read__(self, s):
         """
         @summary:  Read readLen bytes as string
@@ -808,7 +829,7 @@ class String(Type, CallableValue):
         """
         if self._readLen is None:
             if self._until is None:
-                self.value = s.getvalue()[s.pos:]
+                self.value = s.getvalue()[s._pos():]
             else:
                 self.value = ""
                 while self.value[-len(self._until):] != self._until and s.dataLen() != 0:
@@ -818,6 +839,8 @@ class String(Type, CallableValue):
         
         if self._unicode:
             self.value = decodeUnicode(self.value)
+
+        # print(f"String read unicode={self._unicode} {self.value}")  # FIXME
         
     def __sizeof__(self):
         """
@@ -836,7 +859,7 @@ def encodeUnicode(s):
     @param s: str python
     @return: unicode string
     """
-    return "".join([c + "\x00" for c in s]) + "\x00\x00"
+    return b"".join([ bytes([(c if type(c)==int else ord(c))]) + b"\x00" for c in s]) + b"\x00\x00"
 
 def decodeUnicode(s):
     """
@@ -848,26 +871,40 @@ def decodeUnicode(s):
     r = ""
     while i < len(s) - 2:
         if i % 2 == 0:
-            r += s[i]
+            r += chr(s[i]) if type(s[i]) == int else s[i]
         i += 1
     return r
 
-class Stream(StringIO):
+class Stream(BytesIO):
     """
     @summary:  Stream use to read all types
     """
+
+    def _pos(self, pos=None):
+        if pos is not None:
+            self.seek(pos)
+        return self.tell()
+
+    def _len(self):
+        pos = self.tell()
+        self.seek(0, SEEK_END)
+        end = self.tell()
+        self.seek(pos)
+        return end
+        
+
     def dataLen(self):
         """
         @return: not yet read length
         """
-        return self.len - self.pos
+        return self._len() - self._pos()
     
     def readLen(self):
         """
         @summary: compute already read size
         @return: read size of stream
         """
-        return self.pos
+        return self._pos()
     
     def readType(self, value):
         """
@@ -886,7 +923,7 @@ class Stream(StringIO):
                     for tmpElement in value:
                         if tmpElement == element:
                             break
-                        self.pos -= sizeof(tmpElement)
+                        self._pos(self._pos() - sizeof(tmpElement))
                     raise e
             return
         
@@ -902,7 +939,7 @@ class Stream(StringIO):
         @param t: Type element
         """
         self.readType(t)
-        self.pos -= sizeof(t)
+        self._pos(self._pos() - sizeof(t))
     
     def writeType(self, value):
         """

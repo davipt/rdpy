@@ -53,14 +53,14 @@ class X224Test(unittest.TestCase):
         """
         class Presentation(object):
             def recv(self, data):
-                data.readType(type.String('test_x224_layer_recvData', constant = True))
+                data.readType(type.String(b'test_x224_layer_recvData', constant = True))
                 raise X224Test.X224_PASS()
                 
         layer = x224.X224Layer(Presentation())
         s = type.Stream()
-        s.writeType((x224.X224DataHeader(), type.String('test_x224_layer_recvData')))
+        s.writeType((x224.X224DataHeader(), type.String(b'test_x224_layer_recvData')))
         #reinit position
-        s.pos = 0
+        s._pos(0)
         
         self.assertRaises(X224Test.X224_PASS, layer.recvData, s)
         
@@ -72,15 +72,15 @@ class X224Test(unittest.TestCase):
             def send(self, data):
                 s = type.Stream()
                 s.writeType(data)
-                s.pos = 0
+                s._pos(0)
                 s.readType(x224.X224DataHeader())
-                s.readType(type.String('test_x224_layer_send', constant = True))
+                s.readType(type.String(b'test_x224_layer_send', constant = True))
                 raise X224Test.X224_PASS()
         
         layer = x224.X224Layer(None)
         layer._transport = Transport()
         
-        self.assertRaises(X224Test.X224_PASS, layer.send, type.String('test_x224_layer_send'))
+        self.assertRaises(X224Test.X224_PASS, layer.send, type.String(b'test_x224_layer_send'))
         
     def test_x224_client_connect(self):
         """
@@ -90,7 +90,7 @@ class X224Test(unittest.TestCase):
             def send(self, data):
                 s = type.Stream()
                 s.writeType(data)
-                s.pos = 0
+                s._pos(0)
                 t = x224.ClientConnectionRequestPDU()
                 s.readType(t)
                 
@@ -105,7 +105,7 @@ class X224Test(unittest.TestCase):
         layer.recvConnectionConfirm = nextAutomata
         layer.connect()
         
-        self.assertRaises(X224Test.X224_PASS, layer.recv, type.String('\x01\x02'))  
+        self.assertRaises(X224Test.X224_PASS, layer.recv, type.String(b'\x01\x02'))  
 
     def test_x224_client_recvConnectionConfirm_negotiation_failure(self):
         """
@@ -116,7 +116,7 @@ class X224Test(unittest.TestCase):
         message.protocolNeg.code.value = x224.NegociationType.TYPE_RDP_NEG_FAILURE
         s = type.Stream()
         s.writeType(message)
-        s.pos = 0
+        s._pos(0)
         layer = x224.Client(None)
         self.assertRaises(error.RDPSecurityNegoFail, layer.recvConnectionConfirm, s)
         
@@ -146,7 +146,7 @@ class X224Test(unittest.TestCase):
         
         s = type.Stream()
         s.writeType(message)
-        s.pos = 0
+        s._pos(0)
         layer = x224.Client(Presentation())
         layer._transport = Transport()
         layer.recvData = recvData
@@ -155,7 +155,7 @@ class X224Test(unittest.TestCase):
         
         self.assertTrue(tls_begin, "TLS is not started")
         self.assertTrue(presentation_connect, "connect event is not forwarded")
-        self.assertRaises(X224Test.X224_PASS, layer.recv, type.String('\x01\x02'))
+        self.assertRaises(X224Test.X224_PASS, layer.recv, type.String(b'\x01\x02'))
         
     def test_x224_server_recvConnectionRequest_client_accept_ssl(self):
         """
@@ -176,7 +176,7 @@ class X224Test(unittest.TestCase):
         message.protocolNeg.selectedProtocol.value = x224.Protocols.PROTOCOL_HYBRID
         s = type.Stream()
         s.writeType(message)
-        s.pos = 0
+        s._pos(0)
         
         layer = x224.Server(None, "key", "cert", True)
         layer._transport = Transport()
@@ -218,7 +218,7 @@ class X224Test(unittest.TestCase):
         message.protocolNeg.selectedProtocol.value = x224.Protocols.PROTOCOL_SSL | x224.Protocols.PROTOCOL_RDP
         s = type.Stream()
         s.writeType(message)
-        s.pos = 0
+        s._pos(0)
         
         layer = x224.Server(Presentation(), "key", "cert")
         layer._transport = Transport()

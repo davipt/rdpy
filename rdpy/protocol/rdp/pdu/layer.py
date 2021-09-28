@@ -28,7 +28,7 @@ from rdpy.core.error import CallPureVirtualFuntion
 from rdpy.core.type import ArrayType
 import rdpy.core.log as log
 import rdpy.protocol.rdp.tpkt as tpkt
-import data, caps
+from rdpy.protocol.rdp.pdu import data, caps
 
 class PDUClientListener(object):
     """
@@ -301,7 +301,7 @@ class Client(PDULayer):
             if dataPDU.pduData.errorInfo.value == 0:
                 return
             errorMessage = "Unknown code %s"%hex(dataPDU.pduData.errorInfo.value)
-            if data.ErrorInfo._MESSAGES_.has_key(dataPDU.pduData.errorInfo):
+            if dataPDU.pduData.errorInfo in data.ErrorInfo._MESSAGES_:
                 errorMessage = data.ErrorInfo._MESSAGES_[dataPDU.pduData.errorInfo] 
             log.error("INFO PDU : %s"%errorMessage)
             
@@ -357,7 +357,7 @@ class Client(PDULayer):
         #make active PDU packet
         confirmActivePDU = data.ConfirmActivePDU()
         confirmActivePDU.shareId.value = self._shareId
-        confirmActivePDU.capabilitySets._array = self._clientCapabilities.values()
+        confirmActivePDU.capabilitySets._array = list(self._clientCapabilities.values())
         self.sendPDU(confirmActivePDU)
         
     def sendClientFinalizeSynchronizePDU(self):
@@ -520,7 +520,7 @@ class Server(PDULayer):
         """
         if dataPDU.shareDataHeader.pduType2.value == data.PDUType2.PDUTYPE2_SET_ERROR_INFO_PDU:
             errorMessage = "Unknown code %s"%hex(dataPDU.pduData.errorInfo.value)
-            if data.ErrorInfo._MESSAGES_.has_key(dataPDU.pduData.errorInfo):
+            if dataPDU.pduData.errorInfo in data.ErrorInfo._MESSAGES_:
                 errorMessage = data.ErrorInfo._MESSAGES_[dataPDU.pduData.errorInfo]
             log.error("INFO PDU : %s"%errorMessage)
             
@@ -554,7 +554,7 @@ class Server(PDULayer):
         
         demandActivePDU = data.DemandActivePDU()
         demandActivePDU.shareId.value = self._shareId
-        demandActivePDU.capabilitySets._array = self._serverCapabilities.values()
+        demandActivePDU.capabilitySets._array = list(self._serverCapabilities.values())
         self.sendPDU(demandActivePDU)
         
     def sendServerFinalizeSynchronizePDU(self):

@@ -7,3 +7,6 @@ README.md~
 dist/*
 build/*
 rdpy.egg-info/*
+# version
+rdpy-*.*.*
+temp

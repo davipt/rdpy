@@ -23,7 +23,7 @@ Qt specific code
 QRemoteDesktop is a widget use for render in rdpy
 """
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 from rdpy.protocol.rfb.rfb import RFBClientObserver
 from rdpy.protocol.rdp.rdp import RDPClientObserver
 from rdpy.core.error import CallPureVirtualFuntion
@@ -197,7 +197,7 @@ def RDPBitmapToQtImage(width, height, bitsPerPixel, isCompress, data):
             rle.bitmap_decompress(buf, width, height, data, 2)
             image = QtGui.QImage(buf, width, height, QtGui.QImage.Format_RGB555)
         else:
-            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB555).transformed(QtGui.QMatrix(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
+            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB555).transformed(QtGui.QTransform(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
     
     elif bitsPerPixel == 16:
         if isCompress:
@@ -205,7 +205,7 @@ def RDPBitmapToQtImage(width, height, bitsPerPixel, isCompress, data):
             rle.bitmap_decompress(buf, width, height, data, 2)
             image = QtGui.QImage(buf, width, height, QtGui.QImage.Format_RGB16)
         else:
-            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB16).transformed(QtGui.QMatrix(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
+            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB16).transformed(QtGui.QTransform(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
     
     elif bitsPerPixel == 24:
         if isCompress:
@@ -213,7 +213,7 @@ def RDPBitmapToQtImage(width, height, bitsPerPixel, isCompress, data):
             rle.bitmap_decompress(buf, width, height, data, 3)
             image = QtGui.QImage(buf, width, height, QtGui.QImage.Format_RGB888)
         else:
-            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB888).transformed(QtGui.QMatrix(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
+            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB888).transformed(QtGui.QTransform(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
             
     elif bitsPerPixel == 32:
         if isCompress:
@@ -221,7 +221,7 @@ def RDPBitmapToQtImage(width, height, bitsPerPixel, isCompress, data):
             rle.bitmap_decompress(buf, width, height, data, 4)
             image = QtGui.QImage(buf, width, height, QtGui.QImage.Format_RGB32)
         else:
-            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB32).transformed(QtGui.QMatrix(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
+            image = QtGui.QImage(data, width, height, QtGui.QImage.Format_RGB32).transformed(QtGui.QTransform(1.0, 0.0, 0.0, -1.0, 0.0, 0.0))
     else:
         log.error("Receive image in bad format")
         image = QtGui.QImage(width, height, QtGui.QImage.Format_RGB32)
@@ -281,7 +281,7 @@ class RDPClientQt(RDPClientObserver, QAdaptor):
         @param e: QKeyEvent
         @param isPressed: event come from press or release action
         """
-        self._controller.sendWheelEvent(e.pos().x(), e.pos().y(), (abs(e.delta()) / 8) / 15, e.delta() < 0, e.orientation() == QtCore.Qt.Horizontal)
+        self._controller.sendWheelEvent(e.pos().x(), e.pos().y(), (abs(e.delta()) // 8) // 15, e.delta() < 0, e.orientation() == QtCore.Qt.Horizontal)
     
     def closeEvent(self, e):
         """
@@ -330,7 +330,7 @@ class RDPClientQt(RDPClientObserver, QAdaptor):
         #do something maybe a message
 
         
-class QRemoteDesktop(QtGui.QWidget):
+class QRemoteDesktop(QtWidgets.QWidget):
     """
     @summary: Qt display widget
     """
@@ -370,7 +370,7 @@ class QRemoteDesktop(QtGui.QWidget):
         @param height: {int} height of widget
         """
         self._buffer = QtGui.QImage(width, height, QtGui.QImage.Format_RGB32)
-        QtGui.QWidget.resize(self, width, height)
+        QtWidgets.QWidget.resize(self, width, height)
         
     def paintEvent(self, e):
         """

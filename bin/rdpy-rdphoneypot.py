@@ -94,7 +94,7 @@ class HoneyPotServer(rdp.RDPServerObserver):
             clientSize = nextEvent.event.width.value, nextEvent.event.height.value
             serverSize = self._controller.getScreen()
             
-            self._dx, self._dy = (max(0, serverSize[0] - clientSize[0]) / 2), max(0, (serverSize[1] - clientSize[1]) / 2)
+            self._dx, self._dy = (max(0, serverSize[0] - clientSize[0]) // 2), max(0, (serverSize[1] - clientSize[1]) // 2)
             #restart connection sequence
             return
         
@@ -140,14 +140,14 @@ def help():
     """
     @summary: Print help in console
     """
-    print """
+    print("""
     Usage:  rdpy-rdphoneypot.py 
             [-L logfile]
             [-l listen_port default 3389] 
             [-k private_key_file_path (mandatory for SSL)] 
             [-c certificate_file_path (mandatory for SSL)] 
             rss_filepath(1..n)
-    """
+    """)
     
 if __name__ == '__main__':
     listen = "3389"
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hl:k:c:L:")
     except getopt.GetoptError:
-        help()
+        opts = [('-h', '')]
     for opt, arg in opts:
         if opt == "-h":
             help()

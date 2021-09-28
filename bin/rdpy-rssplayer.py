@@ -23,10 +23,10 @@ rss file player
 
 import sys, os, getopt, socket
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 from rdpy.core import log, rss
-from rdpy.ui.qt4 import QRemoteDesktop, RDPBitmapToQtImage
+from rdpy.ui.qt5 import QRemoteDesktop, RDPBitmapToQtImage
 from rdpy.core.scancode import scancodeToChar
 log._LOG_LEVEL = log.Level.INFO
 
@@ -46,7 +46,7 @@ class RssPlayerWidget(QRemoteDesktop):
                 """ Not Handle """
         QRemoteDesktop.__init__(self, width, height, RssAdaptor())
         
-class RssPlayerWindow(QtGui.QWidget):
+class RssPlayerWindow(QtWidgets.QWidget):
     """
     @summary: main window of rss player
     """
@@ -70,7 +70,7 @@ class RssPlayerWindow(QtGui.QWidget):
         self.setGeometry(0, 0, 800, 600)
 
 def help():
-    print "Usage: rdpy-rssplayer [-h] rss_filepath"
+    print("Usage: rdpy-rssplayer [-h] rss_filepath")
 
 def start(widget, rssFile):
     loop(widget, rssFile, rssFile.nextEvent())
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], "h")
     except getopt.GetoptError:
-        help()
+        opts = [('-h', '')]
     for opt, arg in opts:
         if opt == "-h":
             help()
@@ -115,7 +115,7 @@ if __name__ == '__main__':
             
     filepath = args[0]
     #create application
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     
     mainWindow = RssPlayerWindow()
     mainWindow.show()

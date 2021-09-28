@@ -41,7 +41,7 @@ class PERTest(unittest.TestCase):
         """
         s1 = type.Stream()
         s1.writeType(type.UInt8(0x1a))
-        s1.pos = 0
+        s1._pos(0)
         
         l1 = per.readLength(s1)
         
@@ -49,7 +49,7 @@ class PERTest(unittest.TestCase):
         
         s2 = type.Stream()
         s2.writeType(type.UInt16Be(0x1abc | 0x8000))
-        s2.pos = 0
+        s2._pos(0)
         
         l2 = per.readLength(s2)
         
@@ -79,7 +79,7 @@ class PERTest(unittest.TestCase):
             v = t(3)
             s = type.Stream()
             s.writeType((per.writeLength(type.sizeof(v)), v))
-            s.pos = 0
+            s._pos(0)
             
             self.assertTrue(per.readInteger(s) == 3, "invalid readLength for type %s"%t)
         
@@ -87,7 +87,7 @@ class PERTest(unittest.TestCase):
         for l in [0, 3, 5]:
             s = type.Stream()
             s.writeType(per.writeLength(l))
-            s.pos = 0
+            s._pos(0)
             
             self.assertRaises(error.InvalidValue, per.readInteger, s)
             

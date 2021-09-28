@@ -21,10 +21,10 @@
 RDP Standard security layer
 """
 
-import sha, md5
-import lic, tpkt
-from t125 import gcc, mcs
-from rdpy.core.type import CompositeType, CallableValue, Stream, UInt32Le, UInt16Le, String, sizeof, UInt8
+from hashlib import sha1 as sha, md5
+from rdpy.protocol.rdp import lic, tpkt
+from rdpy.protocol.rdp.t125 import gcc, mcs
+from rdpy.core.type import CompositeType, CallableValue, Stream, UInt32Le, UInt16Le, String, sizeof
 from rdpy.core.layer import LayerAutomata, IStreamSender
 from rdpy.core.error import InvalidExpectedDataException
 from rdpy.core import log
@@ -56,6 +56,7 @@ class SecurityFlag(object):
 class InfoFlag(object):
     """
     Client capabilities informations
+    @see: https://msdn.microsoft.com/en-us/library/cc240475.aspx
     """
     INFO_MOUSE = 0x00000001
     INFO_DISABLECTRLALTDEL = 0x00000002
@@ -80,6 +81,7 @@ class InfoFlag(object):
 class PerfFlag(object):
     """
     Network performances flag
+    @see: https://msdn.microsoft.com/en-us/library/cc240476.aspx
     """
     PERF_DISABLE_WALLPAPER = 0x00000001
     PERF_DISABLE_FULLWINDOWDRAG = 0x00000002
@@ -107,8 +109,8 @@ def saltedHash(inputData, salt, salt1, salt2):
     @param salt2: another another salt (ex: server random)
     @return : MD5(Salt + SHA1(Input + Salt + Salt1 + Salt2))
     """
-    sha1Digest = sha.new()
-    md5Digest = md5.new()
+    sha1Digest = sha()
+    md5Digest = md5()
     
     sha1Digest.update(inputData)
     sha1Digest.update(salt[:48])
@@ -129,7 +131,7 @@ def finalHash(key, random1, random2):
     @param random2: in 32
     @return MD5(in0[:16] + in1[:32] + in2[:32])
     """
-    md5Digest = md5.new()
+    md5Digest = md5()
     md5Digest.update(key)
     md5Digest.update(random1)
     md5Digest.update(random2)
@@ -143,7 +145,7 @@ def masterSecret(secret, random1, random2):
     @param serverRandom : {str} server random
     @see: http://msdn.microsoft.com/en-us/library/cc241992.aspx
     """
-    return saltedHash("A", secret, random1, random2) + saltedHash("BB", secret, random1, random2) + saltedHash("CCC", secret, random1, random2)
+    return saltedHash(b"A", secret, random1, random2) + saltedHash(b"BB", secret, random1, random2) + saltedHash(b"CCC", secret, random1, random2)
 
 def sessionKeyBlob(secret, random1, random2):
     """
@@ -152,7 +154,7 @@ def sessionKeyBlob(secret, random1, random2):
     @param clientRandom : client random
     @param serverRandom : server random
     """
-    return saltedHash("X", secret, random1, random2) + saltedHash("YY", secret, random1, random2) + saltedHash("ZZZ", secret, random1, random2)
+    return saltedHash(b"X", secret, random1, random2) + saltedHash(b"YY", secret, random1, random2) + saltedHash(b"ZZZ", secret, random1, random2)
 
 def macData(macSaltKey, data):
     """
@@ -161,22 +163,22 @@ def macData(macSaltKey, data):
     @param data: {str} data to sign
     @return: {str} signature
     """
-    sha1Digest = sha.new()
-    md5Digest = md5.new()
+    sha1Digest = sha()
+    md5Digest = md5()
     
     #encode length
     dataLength = Stream()
     dataLength.writeType(UInt32Le(len(data)))
     
     sha1Digest.update(macSaltKey)
-    sha1Digest.update("\x36" * 40)
+    sha1Digest.update(b"\x36" * 40)
     sha1Digest.update(dataLength.getvalue())
     sha1Digest.update(data)
     
     sha1Sig = sha1Digest.digest()
     
     md5Digest.update(macSaltKey)
-    md5Digest.update("\x5c" * 48)
+    md5Digest.update(b"\x5c" * 48)
     md5Digest.update(sha1Sig)
     
     return md5Digest.digest()
@@ -189,8 +191,8 @@ def macSaltedData(macSaltKey, data, encryptionCount):
     @param encryptionCount: nb encrypted packet
     @return: {str} signature
     """
-    sha1Digest = sha.new()
-    md5Digest = md5.new()
+    sha1Digest = sha()
+    md5Digest = md5()
     
     #encode length
     dataLengthS = Stream()
@@ -200,7 +202,7 @@ def macSaltedData(macSaltKey, data, encryptionCount):
     encryptionCountS.writeType(UInt32Le(encryptionCount))
     
     sha1Digest.update(macSaltKey)
-    sha1Digest.update("\x36" * 40)
+    sha1Digest.update(b"\x36" * 40)
     sha1Digest.update(dataLengthS.getvalue())
     sha1Digest.update(data)
     sha1Digest.update(encryptionCountS.getvalue())
@@ -208,7 +210,7 @@ def macSaltedData(macSaltKey, data, encryptionCount):
     sha1Sig = sha1Digest.digest()
     
     md5Digest.update(macSaltKey)
-    md5Digest.update("\x5c" * 48)
+    md5Digest.update(b"\x5c" * 48)
     md5Digest.update(sha1Sig)
     
     return md5Digest.digest()
@@ -220,17 +222,17 @@ def tempKey(initialKey, currentKey):
     @param currentKey: {str} key actually used
     @return: {str} temp key
     """
-    sha1Digest = sha.new()
-    md5Digest = md5.new()
+    sha1Digest = sha()
+    md5Digest = md5()
     
     sha1Digest.update(initialKey)
-    sha1Digest.update("\x36" * 40)
+    sha1Digest.update(b"\x36" * 40)
     sha1Digest.update(currentKey)
     
     sha1Sig = sha1Digest.digest()
     
     md5Digest.update(initialKey)
-    md5Digest.update("\x5c" * 48)
+    md5Digest.update(b"\x5c" * 48)
     md5Digest.update(sha1Sig)
     
     return md5Digest.digest()
@@ -242,7 +244,7 @@ def gen40bits(data):
     @return: {str} 40 bits data
     @see: http://msdn.microsoft.com/en-us/library/cc240785.aspx
     """
-    return "\xd1\x26\x9e" + data[:8][-5:]
+    return b"\xd1\x26\x9e" + data[:8][-5:]
 
 def gen56bits(data):
     """
@@ -251,7 +253,7 @@ def gen56bits(data):
     @return: {str} 56 bits data
     @see: http://msdn.microsoft.com/en-us/library/cc240785.aspx
     """
-    return "\xd1" + data[:8][-7:]
+    return b"\xd1" + data[:8][-7:]
 
 def generateKeys(clientRandom, serverRandom, method):
     """
@@ -310,7 +312,7 @@ class ClientSecurityExchangePDU(CompositeType):
         CompositeType.__init__(self)
         self.length = UInt32Le(lambda:(sizeof(self) - 4))
         self.encryptedClientRandom = String(readLen = CallableValue(lambda:(self.length.value - 8)))
-        self.padding = String("\x00" * 8, readLen = CallableValue(8))
+        self.padding = String(b"\x00" * 8, readLen = CallableValue(8))
         
 class RDPInfo(CompositeType):
     """
@@ -351,7 +353,7 @@ class RDPExtendedInfo(CompositeType):
         self.cbClientDir = UInt16Le(lambda:sizeof(self.clientDir))
         self.clientDir = String(readLen = self.cbClientDir, unicode = True)
         #TODO make tiomezone
-        self.clientTimeZone = String("\x00" * 172)
+        self.clientTimeZone = String(b"\x00" * 172)
         self.clientSessionId = UInt32Le()
         self.performanceFlags = UInt32Le()
 

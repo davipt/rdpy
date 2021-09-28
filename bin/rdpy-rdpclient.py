@@ -23,14 +23,20 @@ example of use rdpy as rdp client
 
 import sys, os, getopt, socket
 
-from PyQt4 import QtGui, QtCore
-from rdpy.ui.qt4 import RDPClientQt
+from PyQt5 import QtGui, QtCore, QtWidgets
+from rdpy.ui.qt5 import RDPClientQt
 from rdpy.protocol.rdp import rdp
 from rdpy.core.error import RDPSecurityNegoFail
 from rdpy.core import rss
 
 import rdpy.core.log as log
 log._LOG_LEVEL = log.Level.INFO
+
+def stop(reactor):
+    try:
+        reactor.stop()
+    except Exception as e:
+        log.warning(f"Error stopping reactor: {e}")
 
 
 class RDPClientQtRecorder(RDPClientQt):
@@ -173,7 +179,8 @@ class RDPClientQtFactory(rdp.ClientFactory):
             return
         
         log.info("Lost connection : %s"%reason)
-        reactor.stop()
+        # reactor.stop()
+        stop(reactor)
         app.exit()
         
     def clientConnectionFailed(self, connector, reason):
@@ -183,7 +190,8 @@ class RDPClientQtFactory(rdp.ClientFactory):
         @param reason: str use to advertise reason of lost connection
         """
         log.info("Connection failed : %s"%reason)
-        reactor.stop()
+        # reactor.stop()
+        stop(reactor)
         app.exit()
         
 def autoDetectKeyboardLayout():
@@ -211,7 +219,7 @@ def autoDetectKeyboardLayout():
     return "en"
         
 def help():
-    print """
+    print("""
     Usage: rdpy-rdpclient [options] ip[:port]"
     \t-u: user name
     \t-p: password
@@ -222,7 +230,7 @@ def help():
     \t-k: keyboard layout [en|fr] [default : en]
     \t-o: optimized session (disable costly effect) [default : False]
     \t-r: rss_filepath Recorded Session Scenario [default : None]
-    """
+    """)
         
 if __name__ == '__main__':
     
@@ -240,7 +248,7 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hfou:p:d:w:l:k:r:")
     except getopt.GetoptError:
-        help()
+        opts = [('-h', '')]
     for opt, arg in opts:
         if opt == "-h":
             help()
@@ -270,11 +278,11 @@ if __name__ == '__main__':
         ip, port = args[0], "3389"
     
     #create application
-    app = QtGui.QApplication(sys.argv)
-    
-    #add qt4 reactor
-    import qt4reactor
-    qt4reactor.install()
+    app = QtWidgets.QApplication(sys.argv)
+
+    #add qt5 reactor
+    import qt5reactor
+    qt5reactor.install()
     
     if fullscreen:
         width = QtGui.QDesktopWidget().screenGeometry().width()

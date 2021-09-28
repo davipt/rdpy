@@ -23,13 +23,12 @@ Use to manage RDP stack in twisted
 
 from rdpy.core import layer
 from rdpy.core.error import CallPureVirtualFuntion, InvalidValue
-import pdu.layer
-import pdu.data
-import pdu.caps
+from rdpy.protocol.rdp.pdu import layer as pdu_layer, data, caps
+from rdpy.protocol.rdp import pdu
 import rdpy.core.log as log
-import tpkt, x224, sec
-from t125 import mcs, gcc
-from nla import cssp, ntlm
+from rdpy.protocol.rdp import tpkt, x224, sec
+from rdpy.protocol.rdp.t125 import mcs, gcc
+from rdpy.protocol.rdp.nla import cssp, ntlm
 
 class SecurityLevel(object):
     """
@@ -39,7 +38,11 @@ class SecurityLevel(object):
     RDP_LEVEL_SSL = 1
     RDP_LEVEL_NLA = 2
 
-class RDPClientController(pdu.layer.PDUClientListener):
+def b(value):
+    return value.encode('ascii') if type(value) == str else value
+
+
+class RDPClientController(pdu_layer.PDUClientListener):
     """
     Manage RDP stack as client
     """
@@ -47,7 +50,7 @@ class RDPClientController(pdu.layer.PDUClientListener):
         #list of observer
         self._clientObserver = []
         #PDU layer
-        self._pduLayer = pdu.layer.Client(self)
+        self._pduLayer = pdu_layer.Client(self)
         #secure layer
         self._secLayer = sec.Client(self._pduLayer)
         #multi channel service
@@ -103,6 +106,7 @@ class RDPClientController(pdu.layer.PDUClientListener):
         @param username: {string} username of session
         """
         #username in PDU info packet
+        username = b(username)
         self._secLayer._info.userName.value = username
         self._secLayer._licenceManager._username = username
         
@@ -111,6 +115,7 @@ class RDPClientController(pdu.layer.PDUClientListener):
         @summary: Set password for session
         @param password: {string} password of session
         """
+        password = b(password)
         self.setAutologon()
         self._secLayer._info.password.value = password
         
@@ -119,6 +124,7 @@ class RDPClientController(pdu.layer.PDUClientListener):
         @summary: Set the windows domain of session
         @param domain: {string} domain of session
         """
+        domain = b(domain)
         self._secLayer._info.domain.value = domain
         
     def setAutologon(self):
@@ -148,7 +154,8 @@ class RDPClientController(pdu.layer.PDUClientListener):
         """
         @summary: set hostname of machine
         """
-        self._mcsLayer._clientSettings.CS_CORE.clientName.value = hostname[:15] + "\x00" * (15 - len(hostname))
+        hostname = b(hostname)
+        self._mcsLayer._clientSettings.CS_CORE.clientName.value = hostname[:15] + b"\x00" * (15 - len(hostname))
         self._secLayer._licenceManager._hostname = hostname
         
     def setSecurityLevel(self, level):
@@ -365,7 +372,7 @@ class RDPClientController(pdu.layer.PDUClientListener):
         """
         self._pduLayer.close()
 
-class RDPServerController(pdu.layer.PDUServerListener):
+class RDPServerController(pdu_layer.PDUServerListener):
     """
     @summary: Controller use in server side mode
     """               
@@ -379,7 +386,7 @@ class RDPServerController(pdu.layer.PDUServerListener):
         #list of observer
         self._serverObserver = []
         #build RDP protocol stack
-        self._pduLayer = pdu.layer.Server(self)
+        self._pduLayer = pdu_layer.Server(self)
         #secure layer
         self._secLayer = sec.Server(self._pduLayer)
         #multi channel service

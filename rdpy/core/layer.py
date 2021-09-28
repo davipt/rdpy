@@ -107,7 +107,7 @@ class LayerAutomata(Layer, IStreamListener):
 from twisted.internet import protocol
 from twisted.internet.abstract import FileDescriptor
 #first that handle stream     
-from type import Stream
+from rdpy.core.type import Stream
 
 class RawLayerClientFactory(protocol.ClientFactory):
     """
@@ -179,7 +179,7 @@ class RawLayer(protocol.Protocol, LayerAutomata, IStreamSender):
         #call parent automata
         LayerAutomata.__init__(self, presentation)
         #data buffer received from twisted network layer
-        self._buffer = ""
+        self._buffer = b""
         #len of next packet pass to next state function
         self._expectedLen = 0
         self._factory = None
@@ -199,6 +199,11 @@ class RawLayer(protocol.Protocol, LayerAutomata, IStreamSender):
         """
         #add in buffer
         self._buffer += data
+
+        if hasattr(self, '__hack__'):
+            RawLayer.__hack__(data)
+        # print(f"dataReceived {data}")
+
         #while buffer have expected size call local callback
         while self._expectedLen > 0 and len(self._buffer) >= self._expectedLen:
             #expected data is first expected bytes

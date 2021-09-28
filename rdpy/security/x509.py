@@ -23,6 +23,7 @@
 
 from pyasn1.type import tag, namedtype, namedval, univ, constraint, char, useful
 from pyasn1.codec.ber import decoder
+from codecs import decode
 
 MAX = 64
 
@@ -149,8 +150,20 @@ def extractRSAKey(certificate):
     #http://www.alvestrand.no/objectid/1.2.840.113549.1.1.1.html
     
     binaryTuple = certificate.getComponentByName('tbsCertificate').getComponentByName('subjectPublicKeyInfo').getComponentByName('subjectPublicKey')        
+    print(f"rsa binaryTuple {len(binaryTuple)} {binaryTuple}")
+    l = "".join([str(i) for i in binaryTuple])
+    print(f"rsa l {len(l)} {l}")
     l = int("".join([str(i) for i in binaryTuple]), 2)
-    return extractRSAKeyFromASN1(hex(l)[2:-1].decode('hex'))
+    print(f"rsa l {len(str(l))} {l}")
+    h = hex(l)
+    print(f"rsa h {len(h)} {h}")
+    #h = hex(l)[2:-1]
+    h = hex(l)[2:]
+    print(f"rsa h {len(h)} {h}")
+    #h = '0' + h if len(h) % 2 != 0 else h
+    decoded_hex = decode(h, 'hex')
+    print(f"rsa binaryTuple {len(binaryTuple)} {binaryTuple} l {l} h {len(h)} {h} decoded_hex={decoded_hex}")
+    return extractRSAKeyFromASN1(decoded_hex)
     
 def extractRSAKeyFromASN1(subjectPublicKey):
     rsaKey = decoder.decode(subjectPublicKey, asn1Spec=RSAPublicKey())[0]
